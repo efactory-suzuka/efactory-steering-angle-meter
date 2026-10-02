@@ -13,7 +13,8 @@ export class MeasurementController {
   machine=new MeasurementStateMachine();settings:MeasurementSettings;center=new CenterCapture();zero?:CenterReference;axis?:Vec3;
   calibration:AxisCalibration;estimator?:SteeringEstimator;qualityMonitor?:QualityMonitor;max=new MaxAngleTracker();
   reading?:ReturnType<SteeringEstimator['update']>;quality?:ReturnType<QualityMonitor['update']>;
-  gaugeRange=60;notice='';private latest?:SensorFrame;private startedAt=0;
+  gaugeRange=60;notice='';measuringSince=0;private latest?:SensorFrame;private startedAt=0;
+  get latestTimestamp(){return this.latest?.timestampMs??0;}
   constructor(settings:Partial<MeasurementSettings>={}){this.settings={...MEASUREMENT_DEFAULTS,...settings};this.calibration=new AxisCalibration(this.settings.axisCalibrationMode);}
   get state(){return this.machine.state;}
   private clear(){this.center.reset();this.zero=undefined;this.axis=undefined;this.estimator=undefined;this.qualityMonitor=undefined;this.reading=undefined;this.quality=undefined;this.max=new MaxAngleTracker();this.gaugeRange=60;this.calibration=new AxisCalibration(this.settings.axisCalibrationMode);}
@@ -45,7 +46,7 @@ export class MeasurementController {
       }
       if(this.state==='AXIS_CALIBRATION'&&motion&&this.zero){
         const axis=this.calibration.add(f,this.zero);
-        if(axis){this.axis=axis;this.estimator=new SteeringEstimator(this.zero,axis,this.settings.invertLeftRight);this.qualityMonitor=new QualityMonitor(this.zero,axis);this.machine.send('CALIBRATED');this.notice='ステアリング軸を検出しました';}else return;
+        if(axis){this.axis=axis;this.estimator=new SteeringEstimator(this.zero,axis,this.settings.invertLeftRight);this.qualityMonitor=new QualityMonitor(this.zero,axis);this.machine.send('CALIBRATED');this.measuringSince=f.timestampMs;this.notice='ステアリング軸を検出しました';}else return;
       }
       if(this.state==='MEASURING'&&this.estimator&&this.qualityMonitor){
         this.reading=this.estimator.update(f);
@@ -60,5 +61,5 @@ export class MeasurementController {
   }
   snapshot(){return {state:this.state,settings:this.settings,centerProgress:this.center.progress,zero:this.zero??null,steeringAxisZero:this.axis??null,calibration:this.calibration.summary,
     reading:this.reading??null,quality:this.quality??null,max:{valid:this.max.valid,complete:this.max.complete,stableCandidateDeg:this.max.stableCandidateDeg??null,
-      confirmedLeftMaxDeg:this.max.confirmedLeftMaxDeg,confirmedRightMaxDeg:this.max.confirmedRightMaxDeg,observedPeakLeftDeg:this.max.observedPeakLeftDeg,observedPeakRightDeg:this.max.observedPeakRightDeg,lockToLockDeg:this.max.lockToLockDeg},gaugeRange:this.gaugeRange};}
+      stableElapsedMs:this.max.stableElapsedMs,lastRecord:this.max.lastRecord??null,confirmedLeftMaxDeg:this.max.confirmedLeftMaxDeg,confirmedRightMaxDeg:this.max.confirmedRightMaxDeg,observedPeakLeftDeg:this.max.observedPeakLeftDeg,observedPeakRightDeg:this.max.observedPeakRightDeg,lockToLockDeg:this.max.lockToLockDeg},gaugeRange:this.gaugeRange};}
 }

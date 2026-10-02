@@ -11,6 +11,8 @@ export class SteeringEstimator {
   update(f:SensorFrame){
     const relativeQuaternion=Q.relative(this.zero.zeroQuaternion,f.orientation!);
     const decomposition=swingTwist(relativeQuaternion,this.axis);
+    // qRel maps current device into CENTER: projecting physical top onto vehicle
+    // right is positive for a clockwise turn viewed from above (RIGHT positive).
     const sideScore=V.dot(Q.rotateVector(relativeQuaternion,V.vec(0,1,0)),this.zero.rightZero)*(this.invert?-1:1);
     const steeringSide:SteeringSide=Math.abs(sideScore)<=Math.sin(V.rad(TH.SIDE_CENTER_DEADBAND_DEG))?'CENTER':sideScore>0?'RIGHT':'LEFT';
     const orientationAngleDeg=decomposition.twistMagnitudeDeg*(steeringSide==='CENTER'?0:steeringSide==='RIGHT'?1:-1);
