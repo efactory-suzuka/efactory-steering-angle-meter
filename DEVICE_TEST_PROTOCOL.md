@@ -1,16 +1,16 @@
 # Phase 5：iPhone / Androidの具体的な実機診断手順
 
-2026-10-02 / v0.2.0。正式測定・実車最終判定へ進む手順ではない。
+2026-10-02 / v0.3.0-phase6。Phase 5診断機能は正式測定UIの背後に維持する。実車精度や端末依存の挙動を検証済みとする手順ではない。
 
 ## 0. URLの前提
 
-現在の`http://127.0.0.1:4173/?debug=1`は開発PC専用。iPhoneの127.0.0.1はiPhone自身を指すので、このURLをコピーしても接続できない。GitHub PagesでPhase 5診断版だけをHTTPS配信する。公開先repository・ログイン・Pages設定・実際のデプロイ成功とURL確認が済んでから実機試験へ進む。証明書エラーを回避してセンサーを試す手順にはしない。
+実機URLは`https://efactory-suzuka.github.io/efactory-steering-angle-meter/?debug=1`。PC用localhost URLはiPhoneへコピーしない。証明書エラーを回避してセンサーを試す手順にはしない。
 
 ## 1. iPhoneで開始する
 
 1. iPhoneのSafariで実機確認用HTTPS URLを開き、末尾へ`?debug=1`を付ける。既にクエリがあれば`&debug=1`。アプリ内ブラウザーではなくSafariを使う。
 2. 機種、iOS版、Safari版（不明ならiOS版）、画面の縦/横、画面回転ロックON/OFFをメモする。
-3. 「センサー確認を開始」をタップし、モーション・姿勢の使用許可を許可する。拒否した場合は案内を記録し、Safariの当該サイト設定を確認して再試行する。端末版での設定位置は実機確認する。
+3. 「測定開始」をタップし、モーション・姿勢の使用許可を許可する。拒否した場合は案内を記録し、Safariの当該サイト設定を確認して再試行する。端末版での設定位置は実機確認する。
 4. `current state`、姿勢の由来、DeviceOrientation / DeviceMotionのHz・dt、gyro / gravityのfreshnessを確認する。ABSOLUTE_FALLBACKやABSOLUTE_EVENTも取得成功の診断値であり、正式測定対応の判定ではない。
 5. センサーが一部欠けても残る系列は記録される。足りない系列名と経過時間をメモし、その状態のJSONも取得する。
 
@@ -48,7 +48,7 @@
 
 1. 操作直後、取得を続けたまま「JSONをコピー」をタップする。そのクリック時点のログを画面内JSON欄へ固定し、クリップボードへコピーする。
 2. 自動コピーに失敗した場合は、表示された「手動コピー用JSON」を長押しして全文コピーする。「JSONを保存」のネイティブ保存挙動はiPhoneで確認する。
-3. JSONをファイルまたはメモへ貼り付け、ファイル名・動作・機種等のメモと対応させる。`build=0.2.0-phase5`、`meta.source=physical-unverified`、`meta.formalMeasurementEnabled=false`、`frames`が空でないことを確認する。
+3. JSONをファイルまたはメモへ貼り付け、ファイル名・動作・機種等のメモと対応させる。`build=0.3.0-phase6`、`meta.source=physical-unverified`、`meta.physicalValidation=UNVERIFIED`、`frames`が空でないことを確認する。`formalMeasurementEnabled=true`は機能の実装状態を意味し、端末での検証済みを意味しない。
 4. `orientationSource`、raw orientation / motion、`timing`、`phase5.consistencyBySource`、`phase5.rawGyroPca`、`phase5.transformedGyroPca`が含まれることを確認する。UNAVAILABLE/nullもそのまま残す。
 5. JSONを共有する場合は内容を確認し、自分で選んで送る。アプリは自動送信しない。
 
@@ -62,4 +62,14 @@
 - 各source内の姿勢差、gyro予測差、Quaternion残差、静止中の姿勢ジャンプ。
 - raw PCAとtransformed PCAの軸・Qaxis・サンプル数・duration・totalRotation。Bの古い姿勢除外やsegment切替を含めて比較する。
 
-結果を比較するまでは、PCA方式の採用、ABSOLUTE_FALLBACKの正式測定使用、閾値の最終調整、精度保証は決めない。Phase 5のデータをレビューしてそこで停止し、Phase 6以降は別途指示を待つ。
+Phase 6は既存設計に合わせTRANSFORMED_GYROを暫定採用し、RAW_GYROへ切り替え可能とする。実機比較による優位性、ABSOLUTE_FALLBACKの正式測定使用、閾値の最終調整、精度保証は未判断。Phase 7以降は別途指示を待つ。
+
+## 5. 正式測定UIの確認（Phase 6）
+
+1. 固定図に従って物理上端を車体前方へ向けて固定し、必要なら左右反転を選んで「固定しました」。
+2. ハンドルを中央へ戻し「CENTERを記録」。700msの静止を待つ。押した瞬間の姿勢はZEROにしない。
+3. 「ハンドルを左右へゆっくり動かしてください」に従う。方向は任意。軸検出後は自動でMEASURINGになる。
+4. 各端で700ms静止しMAXマーカーを確認。さらに切れば針だけが移動し、静止成立後にMAXを更新する。左右両方のMAXが成立して初めてLock-to-Lockを表示する。
+5. 「測定終了」でRESULT。「もう一度測る」で新しいCENTER・軸校正を取り直す。REFERENCE_LOST / PAUSED / SENSOR_ERRORの値は継続使用しない。
+6. 磁気異常だけでは測定を止めない。absoluteのみ取得可能な端末では正式測定を開始できないが、生データの診断JSONは取得できる。
+7. 合成データボタンは実機試験では押さない。実機の装着・符号・精度・保存挙動の確認は別途必要。

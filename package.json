@@ -1,13 +1,13 @@
 {
   "name": "efactory-steering-angle-meter",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "vite --host 127.0.0.1",
     "build": "tsc --noEmit && vite build",
     "test": "vitest run",
-    "test:report": "vitest run --reporter=default --reporter=json --outputFile=PHASE5_TEST_RESULTS.json",
+    "test:report": "vitest run --reporter=default --reporter=json --outputFile=PHASE6_TEST_RESULTS.json",
     "preview": "vite preview --host 127.0.0.1"
   },
   "devDependencies": {

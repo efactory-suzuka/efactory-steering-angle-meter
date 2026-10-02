@@ -19,5 +19,5 @@ export class SensorDiagnostics {
     const recent=times.filter(t=>last!==undefined&&t>=last-1000);
     return recent.length<2?{hz:0,dtMs:0}:{hz:(recent.length-1)*1000/(recent.at(-1)!-recent[0]),dtMs:recent.at(-1)!-recent.at(-2)!};
   }
-  exportJSON(meta:Record<string,unknown>){return JSON.stringify({schemaVersion:1,build:'0.2.0-phase5',meta,frames:this.records},null,2);}
+  exportJSON(meta:Record<string,unknown>,build='0.2.0-phase5'){return JSON.stringify({schemaVersion:1,build,meta,frames:this.records},null,2);}
 }

@@ -22,7 +22,7 @@ export interface OrientationSample {source:Exclude<OrientationSource,'UNAVAILABL
 export interface AdapterOutput {
   frame:SensorFrame;rawOrientation?:RawOrientation;rawMotion?:RawMotion;browserEventTimestampMs?:number;
   eventChannel?:EventChannel;orientationSample?:OrientationSample;timing?:EventTiming;phase5?:Phase5Values;
-  orientationSource?:OrientationSource;
+  orientationSource?:OrientationSource;phase6?:unknown;
   accelerationConvention:'RAW_UNVERIFIED_POLARITY';
 }
 interface CachedPose {quaternion?:Quaternion;time:number}

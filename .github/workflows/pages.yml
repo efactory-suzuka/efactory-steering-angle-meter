@@ -1,4 +1,4 @@
-name: Verify and deploy Phase 5 diagnostics
+name: Verify and deploy Phase 6 measurement
 on:
   push:
     branches: [main]
