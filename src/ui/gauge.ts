@@ -1,4 +1,5 @@
 import {TH} from '../config/thresholds';
+import {EFACTORY_E_ICON} from '../config/branding';
 export function expandGaugeRange(current:number,angle:number){return Math.abs(angle)>TH.GAUGE_EXPAND_90_AT_DEG?90:Math.abs(angle)>TH.GAUGE_EXPAND_75_AT_DEG?Math.max(current,75):current;}
 export interface GaugeValues {range:number;displayAngleDeg:number;left:number|null;right:number|null}
 const point=(angle:number,range:number,r=142)=>{const a=Math.max(-range,Math.min(range,angle))/range*Math.PI/2;return {x:180+r*Math.sin(a),y:178-r*Math.cos(a)};};
@@ -13,7 +14,9 @@ export function steeringGauge(v:GaugeValues){
     <path d="M180 36 A142 142 0 0 1 322 178" fill="none" stroke="#ba895e" stroke-width="3"/>
     ${ticks.join('')}${marker(v.left,'LEFT')}${marker(v.right,'RIGHT')}
     <line data-needle="true" x1="180" y1="178" x2="${p.x}" y2="${p.y}" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
-    <circle cx="180" cy="178" r="8" fill="#f1b77e"/><text x="40" y="212" text-anchor="middle" fill="#79dcc5" font-size="13">LEFT</text><text x="180" y="212" text-anchor="middle" fill="#b5cbcd" font-size="12">CENTER 0°</text><text x="320" y="212" text-anchor="middle" fill="#f1b77e" font-size="13">RIGHT</text></svg>`;
+    <defs><clipPath id="gauge-logo-circle"><circle cx="180" cy="178" r="16"/></clipPath></defs>
+    <g clip-path="url(#gauge-logo-circle)"><svg x="164" y="162" width="32" height="32" viewBox="75 75 1030 1030"><image data-gauge-logo="true" href="${import.meta.env.BASE_URL}${EFACTORY_E_ICON}" width="1180" height="1180" preserveAspectRatio="xMidYMid meet"/></svg></g>
+    <text x="40" y="212" text-anchor="middle" fill="#79dcc5" font-size="13">LEFT</text><text x="320" y="212" text-anchor="middle" fill="#f1b77e" font-size="13">RIGHT</text></svg>`;
 }
 export const mountGuideSvg=`<svg class="mount-diagram" viewBox="0 0 300 174" role="img" aria-label="スマートフォンの物理上端をバイクの前方へ向けて固定">
   <path d="M150 48 V10 M138 25 L150 10 L162 25" stroke="#277b74" stroke-width="5" fill="none" stroke-linecap="round"/>

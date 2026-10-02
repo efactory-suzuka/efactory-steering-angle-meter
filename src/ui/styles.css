@@ -12,3 +12,4 @@
 @media(max-width:700px){.debuggrid{grid-template-columns:1fr}}
 @media(max-height:600px){.instruction{min-height:128px}#step-progress{margin-bottom:7px}.instruction h1{font-size:19px}.instruction p{font-size:11px}.angle-readout strong{font-size:42px}.angle-readout{min-height:58px}.max-grid strong{font-size:25px}.lock-readout strong{font-size:29px}.footer{font-size:7px}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+.topbar{gap:8px;min-height:38px}.brand{display:flex;align-items:center;gap:8px;min-width:0;letter-spacing:0}.header-brand-link{display:flex;align-items:center;flex-shrink:0;min-height:38px;color:inherit}.header-wordmark{display:block;width:clamp(100px,30vw,136px);height:auto;aspect-ratio:1588/506;mix-blend-mode:screen}.product-name{font-size:clamp(9px,2.65vw,12px);font-weight:500;white-space:nowrap;color:#b9cfd2}.debug-toggle{flex-shrink:0;padding:3px 9px}.logo{mix-blend-mode:screen}

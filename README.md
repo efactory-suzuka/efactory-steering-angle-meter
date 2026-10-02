@@ -1,6 +1,6 @@
-# eFactory Steering Angle Meter
+# eFactory Steering Angle Measure
 
-**v0.3.1 / Phase 6 UX correction. Physical device validation remains unverified.**
+**v0.3.2 / Phase 6 branding UI. Physical device validation remains unverified.**
 
 Public URL: https://efactory-suzuka.github.io/efactory-steering-angle-meter/
 Diagnostics: https://efactory-suzuka.github.io/efactory-steering-angle-meter/?debug=1
@@ -35,7 +35,7 @@ Absolute orientation / compass supplies auxiliary quality only. Magnetic anomali
 
 ## Diagnostics and privacy
 
-?debug=1 exposes a separate scrollable diagnostics panel through the top-right diagnostics button; closing it restores the unchanged one-screen measurement shell. It retains raw Euler, absolute flag, provenance, normalized Quaternion, gyro, gravity, independent event timestamps / previous / Hz / dt / opposite-channel age / gaps, orientation/gyro residual, PCA A/B and freshness. It additionally shows the formal reference, angle, MAX and quality, with per-event phase6 snapshots. JSON copy / Blob save remain local, storing only the latest eight seconds. The current app exports build 0.3.1-phase6-ux, source physical-unverified and physicalValidation UNVERIFIED. Synthetic exports are explicitly marked synthetic; regression tests retain the earlier Phase 5 export default.
+?debug=1 exposes a separate scrollable diagnostics panel through the top-right diagnostics button; closing it restores the unchanged one-screen measurement shell. It retains raw Euler, absolute flag, provenance, normalized Quaternion, gyro, gravity, independent event timestamps / previous / Hz / dt / opposite-channel age / gaps, orientation/gyro residual, PCA A/B and freshness. It additionally shows the formal reference, angle, MAX and quality, with per-event phase6 snapshots. JSON copy / Blob save remain local, storing only the latest eight seconds. The current app exports build 0.3.2-phase6-ui, source physical-unverified and physicalValidation UNVERIFIED. Synthetic exports are explicitly marked synthetic; regression tests retain the earlier Phase 5 export default.
 No sensor uploads, external analytics, account registration, GPS or external fonts. Raw diagnostic logs, test report JSON and local review screenshots are excluded from the public repository. Shared logs may contain userAgent; the user chooses whether to share them.
 Branding and the official site link are configured in src/config/branding.ts. Without a supplied logo, text fallback is displayed.
 
@@ -52,3 +52,5 @@ Hold progress reads sensor timestamps from the existing stationary window, never
 Visibility/pagehide resets in-progress holds without sending FINISH or PAUSE. Sensor freshness still invalidates stale measurements after returning. Display guidance does not influence direction or MAX calculations. Routine gravity deferral while turning retains directional instructions; genuine quality anomalies show the CHECK instruction.
 User-reported iPhone reversal is reproducible in the old fixed-positive polarity code when raw acceleration points down: forward x down points left, reversing sideScore and the signed gyro axis. AUTO fixes this conditional cause without changing quaternion, swing or raw-gravity quality math. The reported phone's exact raw polarity has not been supplied, so its root cause is not claimed as proven from real logs.
 The old long page and overlapping sticky Finish bar accepted an unguarded click. No scroll-to-RESULT transition existed in the state machine. A drag compatibility click is a plausible route, reproduced synthetically and blocked now; the exact Safari event sequence remains unverified without a device event trace. No Phase 7 work.
+
+2026-10-03 branding UI: use the supplied circular e icon as an SVG-clipped gauge hub, remove CENTER 0° under the gauge, and show the supplied horizontal wordmark in the header linked to the configured eFactory homepage. Display name is Steering Angle Measure. The black-background wordmark uses screen blending with the application backdrop to avoid a visible rectangle. Original supplied PNG pixels remain unchanged. Measurement calculations and Phase 6 scope are unchanged.
