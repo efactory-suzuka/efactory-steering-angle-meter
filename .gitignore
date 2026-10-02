@@ -1,0 +1,22 @@
+node_modules/
+dist/
+.DS_Store
+*.local
+# Diagnostic exports and local review evidence are never published as repository content.
+*.json.log
+*_TEST_RESULTS.json
+TEST_RESULTS.json
+*SAMPLE.json
+efactory-sensor-*.json
+iphone_*.json
+android_*.json
+*.zip
+*.jpg
+FIRST_REVIEW.md
+PHASE5_REVIEW.md
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
