@@ -18,6 +18,7 @@ export function steeringGauge(v:GaugeValues){
     <g clip-path="url(#gauge-logo-circle)"><svg x="164" y="162" width="32" height="32" viewBox="75 75 1030 1030"><image data-gauge-logo="true" href="${import.meta.env.BASE_URL}${EFACTORY_E_ICON}" width="1180" height="1180" preserveAspectRatio="xMidYMid meet"/></svg></g>
     <text x="40" y="212" text-anchor="middle" fill="#79dcc5" font-size="13">LEFT</text><text x="320" y="212" text-anchor="middle" fill="#f1b77e" font-size="13">RIGHT</text></svg>`;
 }
+// Retired guide for historical regression API only; not rendered by the app.
 export const mountGuideSvg=`<svg class="mount-diagram" viewBox="0 0 300 174" role="img" aria-label="スマートフォンの物理上端をバイクの前方へ向けて固定">
   <path d="M150 48 V10 M138 25 L150 10 L162 25" stroke="#277b74" stroke-width="5" fill="none" stroke-linecap="round"/>
   <text x="182" y="24" fill="#277b74" font-size="12">バイク前方</text>

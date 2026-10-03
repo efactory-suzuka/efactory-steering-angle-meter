@@ -48,7 +48,7 @@
 
 1. 操作直後、取得を続けたまま右上の「診断」を開き「JSONをコピー」をタップする。そのクリック時点のログを画面内JSON欄へ固定し、クリップボードへコピーする。
 2. 自動コピーに失敗した場合は、表示された「手動コピー用JSON」を長押しして全文コピーする。「JSONを保存」のネイティブ保存挙動はiPhoneで確認する。
-3. JSONをファイルまたはメモへ貼り付け、ファイル名・動作・機種等のメモと対応させる。`build=0.3.2-phase6-ui`、`meta.source=physical-unverified`、`meta.physicalValidation=UNVERIFIED`、`frames`が空でないことを確認する。`formalMeasurementEnabled=true`は機能の実装状態を意味し、端末での検証済みを意味しない。
+3. JSONをファイルまたはメモへ貼り付け、ファイル名・動作・機種等のメモと対応させる。`build=0.3.3-phase6-axis`、`meta.source=physical-unverified`、`meta.physicalValidation=UNVERIFIED`、`frames`が空でないことを確認する。`formalMeasurementEnabled=true`は機能の実装状態を意味し、端末での検証済みを意味しない。
 4. `orientationSource`、raw orientation / motion、`timing`、`phase5.consistencyBySource`、`phase5.rawGyroPca`、`phase5.transformedGyroPca`が含まれることを確認する。UNAVAILABLE/nullもそのまま残す。
 5. JSONを共有する場合は内容を確認し、自分で選んで送る。アプリは自動送信しない。
 
@@ -66,7 +66,7 @@ Phase 6は既存設計に合わせTRANSFORMED_GYROを暫定採用し、RAW_GYRO�
 
 ## 5. 正式測定UIの確認（Phase 6）
 
-1. 固定図に従って物理上端を車体前方へ向けて固定し、必要なら左右反転を選んで「固定しました」。
+1. 端末を見やすい任意の向きでハンドルへしっかり固定し「固定しました」。縦・横・180°・斜め取付を許容する。左右反転はOFFから確認し、取付向きだけを理由にONにしない。測定中に固定位置が動かないこと。
 2. ハンドルを中央へ戻し「中央を記録」。700msの静止を待つ。押した瞬間の姿勢はZEROにしない。
 3. 「ハンドルを左右へゆっくり動かしてください」に従う。方向は任意。軸検出後は自動でMEASURINGになる。
 4. 各端で700ms静止しMAXマーカーを確認。さらに切れば針だけが移動し、静止成立後にMAXを更新する。左右両方のMAXが成立して初めてLock-to-Lockを表示する。
@@ -76,9 +76,12 @@ Phase 6は既存設計に合わせTRANSFORMED_GYROを暫定採用し、RAW_GYRO�
 
 ## 6. UX修正後の実機再確認
 
-- 標準固定・左右反転OFFで、物理LEFTは負、RIGHTは正、MAXは正しい側へ格納されるか確認する。
+- 取付回転0°/90°/180°/270°・任意3D傾斜で、左右反転OFFの物理LEFTは負、RIGHTは正、MAXは正しい側へ格納されるか確認する。取り直すたびにCENTERと軸校正を実施する。
 - 中央記録のJSONに resolvedGravityUpSign と gravityOrientationAlignment を残す。生の加速度・姿勢もそのまま残す。AUTOの上下照合は実機未検証。
 - 0.7秒保持表示が静止で増え、動けば戻り、MAX記録/更新メッセージとマーカー移動が一致するか確認する。
+- CHECKでも針・角度・左右が更新され、既存MAXだけは保持されるか確認する。0.4秒保持→CHECKで0→GOODで0から700ms取り直すこと。CHECKだけで主指示が切り替わらず、独立した補助警告が表示されること。発生しなかったCHECKを実機で確認済みとしない。
+- JSONのphase6.reading.signedTwistDeg / signedSteeringTwistDeg、steeringAxisZero、zero.upZero、calibration.axisUpAlignment / axisSignAmbiguous、MAX.stableElapsedMs、phase6.guidance.primaryInstruction / secondaryStatusを比較する。forwardZero/rightZeroは互換診断値であり車体方向ではない。
+- 実車のキャスターを変えるために分解等を行わず、caster=0°の確認は固定した鉛直軸治具等で行う。0°/25°/35°は合成テスト済み、実機の確認は未実施。
 - 通常測定画面でスクロール/スワイプを試しても終了せず、明示的な「測定終了」のタップでだけ結果へ進むか確認する。
 - Safariのアドレスバー、ホームインジケータ、画面回転、背景から復帰、保存/コピーを確認する。可視状態の変更自体ではRESULTにしないが、センサー欠落は別途SENSOR_ERRORにする。
 - 既存の7秒回転試験と8秒の端末内JSON保存は維持する。実機の精度や端末差を確認済みと扱わない。

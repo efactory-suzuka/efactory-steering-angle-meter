@@ -2,13 +2,20 @@ import type {SensorFrame,Quaternion,Vec3} from '../core/types';
 import * as Q from '../core/math/quaternion';
 import * as V from '../core/math/vec3';
 import {TH} from '../config/thresholds';
-export interface CenterReference {zeroQuaternion:Quaternion;zeroGravityUnit:Vec3;upZero:Vec3;forwardZero:Vec3;rightZero:Vec3;gravityMagnitude:number;absoluteZero?:Quaternion;resolvedGravityUpSign?:1|-1;gravityOrientationAlignment?:number}
+export interface CenterReference {
+  zeroQuaternion:Quaternion;zeroGravityUnit:Vec3;upZero:Vec3;
+  /** @deprecated Diagnostic basis only, not vehicle forward; never used for steering. */
+  forwardZero:Vec3;
+  /** @deprecated Diagnostic basis only, not vehicle right; never used for steering. */
+  rightZero:Vec3;
+  legacyBasisSemantics?:'DIAGNOSTIC_ONLY_NOT_VEHICLE_DIRECTIONS';
+  gravityMagnitude:number;absoluteZero?:Quaternion;resolvedGravityUpSign?:1|-1;gravityOrientationAlignment?:number;
+}
 export function mountFrame(upInput:Vec3){
-  const upZero=V.normalize(upInput),top=V.vec(0,1,0),projected=V.sub(top,V.scale(upZero,V.dot(top,upZero)));
-  if(V.norm(projected)<TH.MOUNT_MIN_FORWARD_PROJECTION)throw new Error('スマートフォンの上端が垂直です。上端を車体前方へ向けて固定してください。');
-  // Vehicle frame: x right, y forward, z up. Therefore forward × up = right.
-  // Reversing raw gravity without resolving its polarity reverses this right vector,
-  // sideScore AND the gyro axis sign. Keep raw gravity separate for quality checks.
+  // Legacy diagnostic basis only: these names do not estimate vehicle directions.
+  // Retained for existing reference consumers, never used by the steering estimator.
+  const upZero=V.normalize(upInput),seed=Math.abs(upZero.y)<.9?V.vec(0,1,0):V.vec(1,0,0);
+  const projected=V.sub(seed,V.scale(upZero,V.dot(seed,upZero)));
   const forwardZero=V.normalize(projected),rightZero=V.normalize(V.cross(forwardZero,upZero));
   return {upZero,forwardZero,rightZero};
 }
@@ -37,10 +44,10 @@ export class CenterCapture {
     // Resolve only the sign at stationary CENTER, never rewrite raw sensor samples.
     const expectedUp=Q.rotateVector(Q.inverse(zeroQuaternion),V.vec(0,0,1));
     const gravityOrientationAlignment=V.dot(zeroGravityUnit,expectedUp);
-    if(upSign==='AUTO'&&Math.abs(gravityOrientationAlignment)<.8)throw new Error('姿勢と重力の上下が一致しません。スマホを静止して中央を再記録してください。');
+    if(upSign==='AUTO'&&Math.abs(gravityOrientationAlignment)<.8)throw new Error('姿勢と重力の上下が一致しません。端末を静止して中央を再記録してください。');
     const resolvedGravityUpSign=upSign==='AUTO'?(gravityOrientationAlignment>=0?1:-1):upSign;
     const axes=mountFrame(V.scale(zeroGravityUnit,resolvedGravityUpSign));
-    return {zeroQuaternion,zeroGravityUnit,...axes,gravityMagnitude:magnitudes.reduce((a,b)=>a+b,0)/magnitudes.length,
+    return {zeroQuaternion,zeroGravityUnit,...axes,legacyBasisSemantics:'DIAGNOSTIC_ONLY_NOT_VEHICLE_DIRECTIONS',gravityMagnitude:magnitudes.reduce((a,b)=>a+b,0)/magnitudes.length,
       absoluteZero:f.absoluteOrientation,resolvedGravityUpSign,gravityOrientationAlignment};
   }
 }

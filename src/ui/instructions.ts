@@ -1,5 +1,7 @@
 import type {MeasurementController} from '../measurement/measurementController';
 import {TH} from '../config/thresholds';
+// Retired pure-instruction policy, retained for historical regression consumers.
+// Production uses GuidanceViewModel; this policy is tree-shaken from its bundle.
 export interface Instruction {step:number;title:string;help:string;holdMs?:number;success?:boolean}
 const stages:Record<string,Instruction>={
   BOOT:{step:1,title:'ハンドルの切れ角を測る',help:'測定開始を押し、センサーの使用を許可してください'},

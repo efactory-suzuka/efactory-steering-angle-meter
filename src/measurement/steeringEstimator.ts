@@ -11,11 +11,12 @@ export class SteeringEstimator {
   update(f:SensorFrame){
     const relativeQuaternion=Q.relative(this.zero.zeroQuaternion,f.orientation!);
     const decomposition=swingTwist(relativeQuaternion,this.axis);
-    // qRel maps current device into CENTER: projecting physical top onto vehicle
-    // right is positive for a clockwise turn viewed from above (RIGHT positive).
-    const sideScore=V.dot(Q.rotateVector(relativeQuaternion,V.vec(0,1,0)),this.zero.rightZero)*(this.invert?-1:1);
-    const steeringSide:SteeringSide=Math.abs(sideScore)<=Math.sin(V.rad(TH.SIDE_CENTER_DEADBAND_DEG))?'CENTER':sideScore>0?'RIGHT':'LEFT';
-    const orientationAngleDeg=decomposition.twistMagnitudeDeg*(steeringSide==='CENTER'?0:steeringSide==='RIGHT'?1:-1);
+    // Hamilton active rotation: positive twist about the gravity-up-signed axis
+    // is counterclockwise (LEFT) viewed from above. Output RIGHT is positive.
+    const signedTwistDeg=Q.signedTwistDeg(decomposition.twistQuaternion,this.axis);
+    const signedSteeringTwistDeg=-signedTwistDeg*(this.invert?-1:1);
+    const steeringSide:SteeringSide=Math.abs(signedSteeringTwistDeg)<=TH.SIDE_CENTER_DEADBAND_DEG?'CENTER':signedSteeringTwistDeg>0?'RIGHT':'LEFT';
+    const orientationAngleDeg=steeringSide==='CENTER'?0:signedSteeringTwistDeg;
     const dt=this.previousTime===undefined?0:f.timestampMs-this.previousTime;
     const valid=dt>0&&dt<=TH.MAX_INTEGRATION_DT_MS&&this.velocityTimestamp!==undefined&&
       f.timestampMs>=this.velocityTimestamp&&f.timestampMs-this.velocityTimestamp<=TH.MAX_INTEGRATION_DT_MS;
@@ -37,7 +38,7 @@ export class SteeringEstimator {
     this.velocityTimestamp=f.motionTimestampMs??f.timestampMs;
     this.displayAngleDeg=!this.initialized||!valid?this.liveAngleDeg:this.displayAngleDeg+(1-Math.exp(-dt/TH.GAUGE_SMOOTHING_TAU_MS))*(this.liveAngleDeg-this.displayAngleDeg);
     this.previousTime=f.timestampMs;this.initialized=true;
-    return {relativeQuaternion,...decomposition,sideScore,steeringSide,orientationAngleDeg,gyroZeroDps,
+    return {relativeQuaternion,...decomposition,signedTwistDeg,signedSteeringTwistDeg,steeringSide,orientationAngleDeg,gyroZeroDps,
       gyroVelocityDps:this.velocity,liveAngleDeg:this.liveAngleDeg,displayAngleDeg:this.displayAngleDeg,dtMs:dt,gyroIntegrated:valid};
   }
 }
