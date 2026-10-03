@@ -21,3 +21,5 @@
 .measurement-main{gap:4px}#gauge{width:calc(100% + 20px)}.steering-gauge{width:100%;height:auto;aspect-ratio:340/212;max-height:100%}
 .max-panel{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.max-grid{display:contents}.max-grid>div,.lock-readout{min-width:0;border:1px solid #33545d;border-radius:10px;padding:7px 3px;text-align:center;background:#20434c}.lock-readout{display:flex;flex-direction:column;justify-content:center;gap:0;min-height:0}.max-grid span,.lock-readout span{font-size:clamp(8px,2.3vw,10px);white-space:nowrap}.max-grid strong,.lock-readout strong{font-size:clamp(23px,4.2dvh,32px);line-height:1.15}
 @media(max-height:600px){.max-grid>div,.lock-readout{padding:5px 2px}.max-grid strong,.lock-readout strong{font-size:23px}}
+
+.axis-activity{display:flex;align-items:center;gap:8px;color:#79dcc5;font-size:12px;min-height:24px}.axis-spinner{width:17px;height:17px;border:2px solid #40626a;border-top-color:#79dcc5;border-radius:50%;animation:axis-spin 1s linear infinite}@keyframes axis-spin{to{transform:rotate(360deg)}}@media(prefers-reduced-motion:reduce){.axis-spinner{animation:none}}

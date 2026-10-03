@@ -48,7 +48,7 @@
 
 1. 操作直後、取得を続けたまま右上の「診断」を開き「JSONをコピー」をタップする。そのクリック時点のログを画面内JSON欄へ固定し、クリップボードへコピーする。
 2. 自動コピーに失敗した場合は、表示された「手動コピー用JSON」を長押しして全文コピーする。「JSONを保存」のネイティブ保存挙動はiPhoneで確認する。
-3. JSONをファイルまたはメモへ貼り付け、ファイル名・動作・機種等のメモと対応させる。`build=0.3.6-phase6-large-gauge`、`meta.source=physical-unverified`、`meta.physicalValidation=UNVERIFIED`、`frames`が空でないことを確認する。`formalMeasurementEnabled=true`は機能の実装状態を意味し、端末での検証済みを意味しない。
+3. JSONをファイルまたはメモへ貼り付け、ファイル名・動作・機種等のメモと対応させる。`build=0.3.7-phase6-axis-diagnostics`、`meta.source=physical-unverified`、`meta.physicalValidation=UNVERIFIED`、`frames`が空でないことを確認する。`formalMeasurementEnabled=true`は機能の実装状態を意味し、端末での検証済みを意味しない。
 4. `orientationSource`、raw orientation / motion、`timing`、`phase5.consistencyBySource`、`phase5.rawGyroPca`、`phase5.transformedGyroPca`が含まれることを確認する。UNAVAILABLE/nullもそのまま残す。
 5. JSONを共有する場合は内容を確認し、自分で選んで送る。アプリは自動送信しない。
 
@@ -99,3 +99,14 @@ Phase 6は既存設計に合わせTRANSFORMED_GYROを暫定採用し、RAW_GYRO�
 9. 合成ボタンは実車ログ取得では押さない。実車ログはphysical-unverifiedのまま保存する。共有する場合は本人が内容を確認して送る。アプリは外部へ自動送信しない。
 
 支持方法ごとの差、真の車体Yawとの一致、軸校正への混入、Roll/Pitchや固定滑りの検出限界、端末差、閾値の妥当性、再現性が未評価のため、現時点では正式採用しない。Phase 7以降は別途指示を待つ。
+
+## 軸推定の待ち時間を調べる（v0.3.7）
+
+1. debug=1付きURLをSafari/Chromeで開き、固定後にCENTERを記録する。
+2. 「ステアリング軸を推定しています」の案内に従い、ハンドルを左右へゆっくり操作する。推定中の「—」は未確定であり、正式角度ではない。
+3. 成立した瞬間に「ステアリング軸を検出しました」「測定できます」が短時間表示され、CENTERからの現在角度がすぐ表示される。操作を続けてよい。
+4. 成立後なるべく早く診断を開き、JSONを端末内でコピー/保存する。measurement.axisCalibration.completedで成立時の経過時間、累積操作量、初回角度、方向、品質、安定度、件数を確認する。
+5. 長時間かかった場合は成立前にも保存し、各frameのblockingReasonsを比較する。直近8秒より前の各イベントは残らないため、長い待ち時間の全履歴には途中の保存が必要。成立記録は8秒後も最新snapshotとmetadataへ残る。
+6. 右から開始したログ、左から開始したログをそれぞれ取得する。再CENTERで軸診断がリセットされることも確認する。
+
+既存のx/y/z回転試験の「1秒静止→約2秒で+30°→1秒静止→約2秒で復帰→1秒静止」は変更しない。軸成立条件や実機精度の結論は実ログ確認後に判断する。

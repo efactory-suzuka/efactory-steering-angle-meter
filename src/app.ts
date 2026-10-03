@@ -23,7 +23,7 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML=`
 <main class="measurement-main" id="measurement-screen">
 <header class="topbar"><div class="brand"><a class="header-brand-link" href="${EFACTORY_URL}" target="_blank" rel="noopener noreferrer" aria-label="eFactoryホームページ（別タブで開く）"><svg class="header-wordmark" viewBox="58 183 1588 506" role="img" aria-label="eFactory"><image href="${import.meta.env.BASE_URL}${EFACTORY_LOGO}" width="1672" height="941" preserveAspectRatio="xMidYMid meet"/></svg></a><span class="product-title"><span class="product-name">Steering Angle Measure</span><span class="beta-badge" aria-label="ベータ版">β版</span></span></div>${debug?'<button class="debug-toggle" id="debug-toggle">診断</button>':''}</header>
 <section class="instruction"><div class="step-heading"><span id="step-label">STEP 1 / 4</span><span>今やること</span></div><nav id="step-progress" aria-label="測定の進行状況"></nav>
-<div id="primary-instruction" role="status" aria-live="polite" aria-atomic="true"><h1 id="status-label">ハンドルの切れ角を測る</h1><p id="status-text"></p></div><div id="center-progress" class="hold-progress" hidden><progress id="center-meter" max="1" value="0" aria-label="静止保持の進捗"></progress><span id="hold-time">0.0 / 0.7秒</span></div><div class="secondary-slot"><p id="secondary-status" role="status" aria-live="polite" aria-atomic="true" hidden></p></div></section>
+<div id="primary-instruction" role="status" aria-live="polite" aria-atomic="true"><h1 id="status-label">ハンドルの切れ角を測る</h1><p id="status-text"></p></div><div id="center-progress" class="hold-progress" hidden><progress id="center-meter" max="1" value="0" aria-label="静止保持の進捗"></progress><span id="hold-time">0.0 / 0.7秒</span></div><div class="secondary-slot"><div id="axis-activity" class="axis-activity" role="status" hidden><span class="axis-spinner" aria-hidden="true"></span><span>推定中…</span></div><p id="secondary-status" role="status" aria-live="polite" aria-atomic="true" hidden></p></div></section>
 <section class="gauge-area"><div id="measurement-mode" class="measurement-mode" hidden>合成データ · 実機結果ではありません</div><div id="gauge"></div>
 <div class="angle-readout"><strong id="live-angle">—</strong><span id="side">CENTER</span></div>
 <div id="mount-guide" class="mounting-card" hidden>${freeMountGuideSvg}<label class="invert-setting"><input type="checkbox" id="invert">左右反転（必要な場合のみ）</label></div></section>
@@ -35,10 +35,10 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML=`
 <footer class="footer"><div class="privacy">センサーデータは端末内処理・外部送信なし<br>位置情報・アカウント登録は不要です。</div><div class="footer-right"><a id="brand-link" hidden rel="noopener noreferrer" target="_blank"><img class="logo" id="efactory-logo" alt="eFactory" hidden><span id="brand-fallback">eFactory</span></a><span>Developed by eFactory</span></div></footer>
 </main>
 ${debug?`<aside id="diagnostic-panel" class="diagnostic-panel" hidden><button id="debug-close" class="secondary">診断を閉じる</button><section class="card debug"><div class="card-head"><h2>Sensor Diagnostics</h2><span class="pill">LOCAL ONLY</span></div><p class="muted">Phase 5の生データ・A/B PCA診断を維持。重力符号・端末の挙動・閾値は実機未検証です。</p><div id="demo-notice" class="demo-notice" hidden>合成データを表示中です。実機の取得結果ではありません。</div>
-<div class="actions debug-controls"><button class="secondary" id="copy">JSONをコピー</button><button class="secondary" id="download">JSONを保存</button><button class="secondary" id="synthetic">合成データを確認</button><button class="secondary" id="synthetic-jump">5°基準ジャンプを確認</button><button class="secondary" id="mount-demo">固定ガイドを合成データで確認</button><button class="secondary" id="measurement-demo">測定フローを合成データで確認</button><button class="secondary" id="check-demo">Absolute CHECKの保持を合成確認</button><button class="secondary" id="core-check-demo">Core CHECKの保持を合成確認</button><button class="secondary" id="rear-stand-demo">リアスタンドYawを合成確認</button></div>
+<div class="actions debug-controls"><button class="secondary" id="copy">JSONをコピー</button><button class="secondary" id="download">JSONを保存</button><button class="secondary" id="synthetic">合成データを確認</button><button class="secondary" id="synthetic-jump">5°基準ジャンプを確認</button><button class="secondary" id="mount-demo">固定ガイドを合成データで確認</button><button class="secondary" id="axis-demo">軸推定中を合成確認</button><button class="secondary" id="axis-ready-demo">軸成立を合成確認</button><button class="secondary" id="measurement-demo">測定フローを合成データで確認</button><button class="secondary" id="check-demo">Absolute CHECKの保持を合成確認</button><button class="secondary" id="core-check-demo">Core CHECKの保持を合成確認</button><button class="secondary" id="rear-stand-demo">リアスタンドYawを合成確認</button></div>
 <section class="rear-stand-card"><h3>Rear Stand Compensation</h3><label class="rear-switch"><input type="checkbox" id="rear-stand-enabled">実験補正 <b id="rear-stand-mode">OFF</b></label><p class="muted">実験・実機未検証。車体の余計な回転が主にYawという仮定です。通常画面の測定値は補正しません。0.1°は表示分解能です。</p><dl class="rear-metrics"><div><dt>Raw steering</dt><dd id="rear-raw">—</dd></div><div><dt>Corrected steering</dt><dd id="rear-corrected">—</dd></div><div><dt>Estimated body yaw</dt><dd id="rear-yaw">—</dd></div><div><dt>Model residual</dt><dd id="rear-residual">—</dd></div><div><dt>Axis vs gravity</dt><dd id="rear-axis">—</dd></div><div><dt>Condition</dt><dd id="rear-condition">—</dd></div><div><dt>Compensation</dt><dd id="rear-status">OFF</dd></div><div><dt>Observability</dt><dd id="rear-observable">—</dd></div></dl><dl class="rear-metrics"><div><dt>Raw LEFT MAX</dt><dd id="rear-raw-left">—</dd></div><div><dt>Raw RIGHT MAX</dt><dd id="rear-raw-right">—</dd></div><div><dt>Corrected LEFT MAX</dt><dd id="rear-corrected-left">—</dd></div><div><dt>Corrected RIGHT MAX</dt><dd id="rear-corrected-right">—</dd></div></dl><pre id="rear-stand-detail"></pre></section>
 <div class="message" id="export-message" role="status"></div><textarea class="copyarea" id="copy-fallback" hidden aria-label="手動コピー用JSON" readonly></textarea>
-<div class="debuggrid"><div><h3>DeviceOrientation / Quaternion</h3><pre id="orientation-detail"></pre></div><div><h3>Gyro / Acceleration</h3><pre id="motion-detail"></pre></div><div><h3>非同期イベント時刻・鮮度</h3><pre id="timing-detail"></pre></div><div><h3>Orientation / Gyro整合性</h3><pre id="consistency-detail"></pre></div><div><h3>PCA A · raw gyroDeviceDps</h3><pre id="pca-raw-detail"></pre></div><div><h3>PCA B · diagnostic gyroZeroDps</h3><pre id="pca-transformed-detail"></pre></div><div><h3>正式測定 / MAX / Quality</h3><pre id="measurement-detail"></pre></div></div></section><div class="actions debug-controls"><button id="rezero" class="secondary" hidden>再ZERO</button><button id="stop" class="secondary" hidden>一時停止</button></div><div id="quality-components"></div><div id="absolute-hint"></div><span id="state"></span></aside>`:''}
+<div class="debuggrid"><div><h3>DeviceOrientation / Quaternion</h3><pre id="orientation-detail"></pre></div><div><h3>Gyro / Acceleration</h3><pre id="motion-detail"></pre></div><div><h3>非同期イベント時刻・鮮度</h3><pre id="timing-detail"></pre></div><div><h3>Orientation / Gyro整合性</h3><pre id="consistency-detail"></pre></div><div><h3>PCA A · raw gyroDeviceDps</h3><pre id="pca-raw-detail"></pre></div><div><h3>PCA B · diagnostic gyroZeroDps</h3><pre id="pca-transformed-detail"></pre></div><div><h3>Axis Calibration</h3><pre id="axis-calibration-detail"></pre></div><div><h3>正式測定 / MAX / Quality</h3><pre id="measurement-detail"></pre></div></div></section><div class="actions debug-controls"><button id="rezero" class="secondary" hidden>再ZERO</button><button id="stop" class="secondary" hidden>一時停止</button></div><div id="quality-components"></div><div id="absolute-hint"></div><span id="state"></span></aside>`:''}
 `;
 const el=(id:string)=>document.getElementById(id)!;
 const button=(id:string)=>el(id) as HTMLButtonElement;
@@ -80,16 +80,17 @@ function setText(id:string,value:string){if(el(id).textContent!==value)el(id).te
 function render(){
   if(active&&!document.hidden&&performance.now()>=resumeFreshnessAfter)controller.checkFreshness(performance.now());
   const s=controller.state,r=controller.reading,q=controller.quality,m=controller.max;
-  const valid=m.valid&&!!controller.zero;
+  const valid=m.valid&&!!controller.zero&&!!r&&['MEASURING','RESULT'].includes(s);
   const left=valid&&m.confirmedLeftMaxDeg<=-TH.MIN_LOCK_ANGLE_DEG?m.confirmedLeftMaxDeg:null,right=valid&&m.confirmedRightMaxDeg>=TH.MIN_LOCK_ANGLE_DEG?m.confirmedRightMaxDeg:null;
-  if(debug)el('state').textContent=s;el('gauge').innerHTML=steeringGauge({range:controller.gaugeRange,displayAngleDeg:valid?r?.displayAngleDeg??0:0,left,right});
-  el('live-angle').textContent=valid?fmt(r?.displayAngleDeg):'—';el('side').textContent=valid?r?.steeringSide??'CENTER':'CENTER';
+  if(debug)el('state').textContent=s;el('gauge').innerHTML=steeringGauge({range:controller.gaugeRange,displayAngleDeg:valid?r?.displayAngleDeg??0:0,left,right,readingAvailable:valid});
+  el('live-angle').textContent=valid?fmt(r?.displayAngleDeg):'—';el('side').textContent=valid?r?.steeringSide??'CENTER':s==='AXIS_CALIBRATION'?'':'CENTER';
   el('left-max').textContent=fmt(s==='RESULT'&&left!==null?Math.abs(left):left);el('right-max').textContent=fmt(right);el('lock').textContent=fmt(m.lockToLockDeg);
   const overall=valid?(controller.coreQuality==='GOOD'&&q?.quality.absolute==='UNSTABLE'?'MAGNETIC':controller.coreQuality):s==='REFERENCE_LOST'?'RETRY':'CHECK';el('overall-quality').textContent=s==='RESULT'&&!m.complete&&overall==='GOOD'?'CHECK':overall;
   if(debug)el('quality-components').textContent=q?`axis ${q.quality.axis} · swing ${q.quality.swing} · gravity ${q.quality.gravity} · absolute ${q.quality.absolute}`:'axis — · swing — · gravity — · absolute —';
   if(debug)el('absolute-hint').textContent=!q||q.quality.absolute==='UNAVAILABLE'?'Absolute reference unavailable':q.quality.absolute==='UNSTABLE'?'MAGNETIC · 磁気基準が不安定です。切れ角計算には使用しません。':'Absolute reference · 補助Qualityのみ';
   el('measurement-mode').hidden=!syntheticMode;
   const view=guidance.update(controller,syntheticMode?controller.latestTimestamp+performance.now()-syntheticShownAt:performance.now()),guide=view.primaryInstruction;
+  el('axis-activity').hidden=s!=='AXIS_CALIBRATION';
   setText('status-label',guide.title);setText('status-text',guide.help);
   setText('secondary-status',view.secondaryStatus??'');el('secondary-status').hidden=!view.secondaryStatus;
   el('status-label').classList.toggle('recorded',!!guide.success);
@@ -121,6 +122,7 @@ function render(){
     el('consistency-detail').textContent=JSON.stringify(p?{latest:p.consistency,bySource:p.consistencyBySource,automaticReferenceLost:false}:null,null,2);
     el('pca-raw-detail').textContent=JSON.stringify(p?.rawGyroPca??null,null,2);
     el('pca-transformed-detail').textContent=JSON.stringify(p?{...p.transformedGyroPca,gyroZeroDps:p.gyroZeroDps,formalMode:controller.settings.axisCalibrationMode,formalAnchor:'CAPTURED_CENTER',hardwareComparison:'UNVERIFIED'}:null,null,2);
+    el('axis-calibration-detail').textContent=JSON.stringify(controller.snapshot().axisCalibration,null,2);
   el('measurement-detail').textContent=JSON.stringify({...controller.snapshot(),guidance:view},null,2);
   }
 }
@@ -130,7 +132,7 @@ if(debug){
   el('rear-stand-enabled').addEventListener('change',()=>{controller.rearStand.setEnabled((el('rear-stand-enabled') as HTMLInputElement).checked);render();});
   el('debug-toggle').addEventListener('click',()=>{el('diagnostic-panel').hidden=false;});
   el('debug-close').addEventListener('click',()=>{el('diagnostic-panel').hidden=true;});
-  const prepareExport=()=>{const json=diagnostics.exportJSON({userAgent:navigator.userAgent,secureContext:window.isSecureContext,screenAngle:screen.orientation?.angle??null,capturedAtIso:captureStartedIso,exportedAtIso:new Date().toISOString(),source:syntheticMode?'synthetic':'physical-unverified',state:controller.state,phase:6,formalMeasurementEnabled:true,physicalValidation:'UNVERIFIED',clock:'PERFORMANCE_NOW_RECEIPT',rearStandConfig:REAR_STAND,pcaUnits:{duration:'seconds',totalRotation:'degrees'},thresholds:TH,accelerationConvention:'RAW_UNVERIFIED_POLARITY',measurement:controller.snapshot()},'0.3.6-phase6-large-gauge');const box=el('copy-fallback') as HTMLTextAreaElement;box.hidden=false;box.value=json;return json;};
+  const prepareExport=()=>{const json=diagnostics.exportJSON({userAgent:navigator.userAgent,secureContext:window.isSecureContext,screenAngle:screen.orientation?.angle??null,capturedAtIso:captureStartedIso,exportedAtIso:new Date().toISOString(),source:syntheticMode?'synthetic':'physical-unverified',state:controller.state,phase:6,formalMeasurementEnabled:true,physicalValidation:'UNVERIFIED',clock:'PERFORMANCE_NOW_RECEIPT',rearStandConfig:REAR_STAND,pcaUnits:{duration:'seconds',totalRotation:'degrees'},thresholds:TH,accelerationConvention:'RAW_UNVERIFIED_POLARITY',measurement:controller.snapshot()},'0.3.7-phase6-axis-diagnostics');const box=el('copy-fallback') as HTMLTextAreaElement;box.hidden=false;box.value=json;return json;};
   el('copy').addEventListener('click',async()=>{const json=prepareExport();try{await navigator.clipboard.writeText(json);el('export-message').textContent='直近8秒のJSONをコピーしました。';}catch{(el('copy-fallback') as HTMLTextAreaElement).select();el('export-message').textContent='自動コピーできません。JSON欄を長押ししてコピーしてください。';}});
   el('download').addEventListener('click',()=>{const a=document.createElement('a'),blob=new Blob([prepareExport()],{type:'application/json'});a.href=URL.createObjectURL(blob);a.download=`efactory-sensor-${syntheticMode?'synthetic':'physical'}-${new Date().toISOString().replace(/[:.]/g,'-')}.json`;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);el('export-message').textContent='保存を開始しました。保存できない場合はJSON欄をコピーしてください。';});
   const syntheticReset=()=>{const enabled=controller.rearStand.enabled;disconnect();syntheticMode=true;syntheticShownAt=performance.now();resetLogs();controller=new MeasurementController();controller.rearStand.setEnabled(enabled);el('demo-notice').hidden=false;};
@@ -139,6 +141,19 @@ if(debug){
   el('mount-demo').addEventListener('click',()=>{
     syntheticReset();controller.start(0);controller.granted(0);accept({frame:syntheticMotion([{timeMs:0,rightAngleDeg:0},{timeMs:20,rightAngleDeg:0}]).frames[0],accelerationConvention:'RAW_UNVERIFIED_POLARITY'});render();
   });
+  const calibrationDemo=(complete:boolean)=>{
+    syntheticReset();controller.start(0);controller.granted(0);
+    const motion=syntheticMotion([{timeMs:0,rightAngleDeg:0},{timeMs:900,rightAngleDeg:0},{timeMs:2900,rightAngleDeg:30}]);
+    for(const frame of motion.frames){
+      if(!complete&&frame.timestampMs>1400)break;
+      accept({frame,eventChannel:'devicemotion',accelerationConvention:'RAW_UNVERIFIED_POLARITY'});
+      if(controller.state==='MOUNT_GUIDE'){controller.mounted();controller.captureCenter();}
+      if(controller.state==='MEASURING')break;
+    }
+    syntheticShownAt=performance.now();el('diagnostic-panel').hidden=true;render();
+  };
+  el('axis-demo').addEventListener('click',()=>calibrationDemo(false));
+  el('axis-ready-demo').addEventListener('click',()=>calibrationDemo(true));
   const measurementDemo=(check:'NONE'|'ABSOLUTE'|'CORE'='NONE')=>{
     syntheticReset();controller.start(0);controller.granted(0);
     const keys=[{timeMs:0,rightAngleDeg:0},{timeMs:900,rightAngleDeg:0},{timeMs:2900,rightAngleDeg:30},{timeMs:3800,rightAngleDeg:30},{timeMs:4300,rightAngleDeg:32},{timeMs:6000,rightAngleDeg:32},{timeMs:10000,rightAngleDeg:-35.4},{timeMs:12000,rightAngleDeg:-35.4},{timeMs:16000,rightAngleDeg:36.1},{timeMs:18000,rightAngleDeg:36.1}];

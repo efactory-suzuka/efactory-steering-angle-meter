@@ -1,6 +1,6 @@
 # eFactory Steering Angle Measure
 
-**v0.3.6 / Phase 6 larger gauge UI. Core-only MAX gate and debug-only Rear Stand Compensation retained. Physical device and vehicle validation remain unverified.**
+**v0.3.7 / Phase 6 axis calibration guidance and diagnostics. Core-only MAX gate and debug-only Rear Stand Compensation retained. Physical device and vehicle validation remain unverified.**
 
 Public URL: https://efactory-suzuka.github.io/efactory-steering-angle-meter/
 Diagnostics: https://efactory-suzuka.github.io/efactory-steering-angle-meter/?debug=1
@@ -36,7 +36,7 @@ Absolute orientation / compass supplies auxiliary quality only. Magnetic anomali
 
 ## Diagnostics and privacy
 
-?debug=1 exposes a separate scrollable diagnostics panel through the top-right diagnostics button; closing it restores the unchanged one-screen measurement shell. It retains raw Euler, absolute flag, provenance, normalized Quaternion, gyro, gravity, independent event timestamps / previous / Hz / dt / opposite-channel age / gaps, orientation/gyro residual, PCA A/B and freshness. It additionally shows formal reference, angle, MAX, core/aggregate quality and Rear Stand Compensation, with per-event phase6 snapshots. JSON copy / Blob save remain local, storing only the latest eight seconds. The current app exports build 0.3.6-phase6-large-gauge, source physical-unverified and physicalValidation UNVERIFIED. Synthetic exports are explicitly marked synthetic; regression tests retain the earlier Phase 5 export default.
+?debug=1 exposes a separate scrollable diagnostics panel through the top-right diagnostics button; closing it restores the unchanged one-screen measurement shell. It retains raw Euler, absolute flag, provenance, normalized Quaternion, gyro, gravity, independent event timestamps / previous / Hz / dt / opposite-channel age / gaps, orientation/gyro residual, PCA A/B and freshness. It additionally shows formal reference, angle, MAX, core/aggregate quality and Rear Stand Compensation, with per-event phase6 snapshots. JSON copy / Blob save remain local, storing only the latest eight seconds. The current app exports build 0.3.7-phase6-axis-diagnostics, source physical-unverified and physicalValidation UNVERIFIED. Synthetic exports are explicitly marked synthetic; regression tests retain the earlier Phase 5 export default.
 No sensor uploads, external analytics, account registration, GPS or external fonts. Raw diagnostic logs, test report JSON and local review screenshots are excluded from the public repository. Shared logs may contain userAgent; the user chooses whether to share them.
 Branding and the official site link are configured in src/config/branding.ts. Without a supplied logo, text fallback is displayed.
 
@@ -65,3 +65,15 @@ All thresholds and bounded search limits in src/config/rearStand.ts are provisio
 2026-10-03 beta UI: display β版 beside the app name and the short notice 測定値は参考値としてご利用ください。 on the measurement screen. The normal URL has no diagnostic button or diagnostic URL link. The existing ?debug=1 route retains its diagnostic button, raw data, local JSON export and initial-OFF experiment. Formal measurement calculations remain unchanged.
 
 2026-10-03 larger gauge: remove the viewport-based dial height cap, reduce vertical gaps, and place LEFT MAX / RIGHT MAX / LOCK TO LOCK in one row to give the meter more space. Beta notice, hidden normal diagnostic entry and measurement calculations remain unchanged.
+
+## Axis Calibration diagnostics (v0.3.7)
+
+Production calibration shows「ステアリング軸を推定しています」with「ハンドルを左右にゆっくり動かしてください」「測定の準備をしています」and an indeterminate spinner. No angle or needle is shown as a formal reading until the axis is ready. Readiness transitions immediately to MEASURING; the success message lasts about 1.2 seconds without delaying input, measurement, or MAX tracking. Reduced-motion settings disable rotation of the spinner.
+
+The existing readiness thresholds remain unchanged: gyro speed 4–150°/s, at least 30 inliers, at least 1200ms between the oldest and latest accepted samples, at least 20° time-weighted inlier motion, initial and refitted PCA quality at least 0.90, outlier axis deviation at most 15°, and absolute up-axis dot at least 0.01. A nonpositive or over-150ms gyro interval clears the existing PCA sample window; the first gyro event only establishes timing. The window is 8 seconds. Production mode remains TRANSFORMED_GYRO, anchored to the original stationary CENTER.
+
+Debug and local JSON expose measurement.axisCalibration and frames[].phase6.axisCalibration: elapsedMs (since successful CENTER), validGyroSampleCount (speed-qualified samples in the retained window), inlierSampleCount (the count used by readiness), accumulatedAngularMotionDeg (time-weighted inlier motion used by readiness), sampleDurationMs, qAxis, lambda1/2/3 (unnormalized weighted second-moment eigenvalues, °²/s), axisStabilityDeg (sign-invariant change from the preceding accepted PCA estimate), currentAxis, calibrationReady, blockingReasons, gyro timing/gap/invalid-input counts. qualifiedAngularMotionTotalDeg is the lifetime sum of speed-qualified intervals before outlier rejection; it is diagnostic only. Axis stability is descriptive, not an added readiness gate.
+
+Blockers: INSUFFICIENT_SAMPLES, INSUFFICIENT_DURATION, INSUFFICIENT_MOTION, LOW_AXIS_QUALITY, AXIS_SIGN_AMBIGUOUS, WAITING_FOR_GYRO_DT, GYRO_TOO_SLOW, GYRO_TOO_FAST, GYRO_GAP, NON_MONOTONIC_TIMESTAMP, INVALID_SENSOR_DATA, STALE_ORIENTATION, STALE_GYRO, STALE_GRAVITY. No AXIS_NOT_STABLE condition is invented because the existing algorithm has no separate stability threshold.
+
+axisCalibration.completed is an immutable transition record containing time since CENTER, accumulated motion, the first formal steering angle, side, movement direction/rate, quality, stability, sample counts and the original zeroQuaternion. It persists in current snapshots and export metadata even after the transition event leaves the 8-second buffer. Re-CENTER resets diagnostics and the completion record. No sensor upload, threshold tuning or Phase 7 work is included. iPhone/Android and real-vehicle behavior remain UNVERIFIED.

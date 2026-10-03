@@ -19,6 +19,8 @@ export const operationStages:Record<string,Instruction>={
 export const CHECK_STATUS='少し動きが不安定です\n車体を動かさず、ハンドルだけ操作してください\n安定すると最大値の記録を再開します';
 const holding:Instruction={step:4,title:'そのまま保持してください',help:'この位置で0.7秒保持するとMAXを記録します'};
 const measuring:Instruction={step:4,title:'測定中です',help:'左右それぞれいっぱいまで切り、0.7秒保持\n記録後も、大きな角度で保持すると自動更新'};
+export const axisEstimatingInstruction:Instruction={step:3,title:'ステアリング軸を推定しています',help:'ハンドルを左右にゆっくり動かしてください\n測定の準備をしています'};
+const axisDetectedInstruction:Instruction={step:4,title:'ステアリング軸を検出しました',help:'測定できます',success:true};
 /** Primary responds to state, records and debounced motion; quality owns secondary. */
 export class GuidanceViewModel {
   // Legacy default retains the existing policy API. The app explicitly uses CORE.
@@ -38,7 +40,12 @@ export class GuidanceViewModel {
   }
   update(c:MeasurementController,now:number){
     if(this.controller!==c){this.controller=c;this.state='';this.lastReading=undefined;this.lastRecord=undefined;this.recordUntil=0;this.pendingIntent='';}
-    if(this.state!==c.state){this.state=c.state;this.pendingIntent='';if(c.state!=='MEASURING'){this.lastRecord=undefined;this.recordUntil=0;this.lastReading=undefined;}this.select(c.state==='MEASURING'?this.operation(c):operationStages[c.state]);}
+    if(this.state!==c.state){
+      const calibrated=this.qualityBasis==='CORE'&&this.state==='AXIS_CALIBRATION'&&c.state==='MEASURING';
+      this.state=c.state;this.pendingIntent='';if(c.state!=='MEASURING'){this.lastRecord=undefined;this.recordUntil=0;this.lastReading=undefined;}
+      this.select(calibrated?axisDetectedInstruction:c.state==='MEASURING'?this.operation(c):c.state==='AXIS_CALIBRATION'&&this.qualityBasis==='CORE'?axisEstimatingInstruction:operationStages[c.state]);
+      if(calibrated)this.recordUntil=now+1200;
+    }
     // Quality-only updates do not run the primary decision path.
     const check=c.quality&&(this.qualityBasis==='CORE'?coreQuality(c.quality.quality)==='CHECK':c.quality.overall==='CHECK');
     this.secondaryStatus=c.state==='MEASURING'&&check?CHECK_STATUS:null;

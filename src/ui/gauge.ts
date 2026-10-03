@@ -1,19 +1,19 @@
 import {TH} from '../config/thresholds';
 import {EFACTORY_E_ICON} from '../config/branding';
 export function expandGaugeRange(current:number,angle:number){return Math.abs(angle)>TH.GAUGE_EXPAND_90_AT_DEG?90:Math.abs(angle)>TH.GAUGE_EXPAND_75_AT_DEG?Math.max(current,75):current;}
-export interface GaugeValues {range:number;displayAngleDeg:number;left:number|null;right:number|null}
+export interface GaugeValues {range:number;displayAngleDeg:number;left:number|null;right:number|null;readingAvailable?:boolean}
 const point=(angle:number,range:number,r=160)=>{const a=Math.max(-range,Math.min(range,angle))/range*Math.PI/2;return {x:180+r*Math.sin(a),y:178-r*Math.cos(a)};};
 export function steeringGauge(v:GaugeValues){
   const p=point(v.displayAngleDeg,v.range,136),ticks=[];
   for(let angle=-v.range;angle<=v.range;angle+=15){const a=point(angle,v.range),b=point(angle,v.range,angle===0?146:154),label=point(angle,v.range,144);
     ticks.push(`<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="#84a6aa"/><text x="${label.x}" y="${label.y+4}" text-anchor="middle" fill="#b5cbcd" font-size="11">${angle===0?'0°':Math.abs(angle)}</text>`);}
   const marker=(angle:number|null,side:'LEFT'|'RIGHT')=>{if(angle===null)return '';const a=point(angle,v.range,165),b=point(angle,v.range,134);return `<line data-max="${side}" data-angle="${angle}" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="${side==='LEFT'?'#79dcc5':'#f1b77e'}" stroke-width="5" stroke-linecap="round"/>`;};
-  return `<svg class="steering-gauge" viewBox="10 8 340 212" role="img" aria-label="ステアリング角度 ${v.displayAngleDeg.toFixed(1)}度、範囲プラスマイナス${v.range}度">
+  return `<svg class="steering-gauge" viewBox="10 8 340 212" role="img" aria-label="${v.readingAvailable===false?'測定準備中のメーター':`ステアリング角度 ${v.displayAngleDeg.toFixed(1)}度、範囲プラスマイナス${v.range}度`}">
     <path d="M20 178 A160 160 0 0 1 340 178 L180 178 Z" fill="#1d414b"/>
     <path d="M20 178 A160 160 0 0 1 180 18" fill="none" stroke="#4d988e" stroke-width="3"/>
     <path d="M180 18 A160 160 0 0 1 340 178" fill="none" stroke="#ba895e" stroke-width="3"/>
     ${ticks.join('')}${marker(v.left,'LEFT')}${marker(v.right,'RIGHT')}
-    <line data-needle="true" x1="180" y1="178" x2="${p.x}" y2="${p.y}" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+    ${v.readingAvailable===false?'':`<line data-needle="true" x1="180" y1="178" x2="${p.x}" y2="${p.y}" stroke="#fff" stroke-width="4" stroke-linecap="round"/>`}
     <defs><clipPath id="gauge-logo-circle"><circle cx="180" cy="178" r="22"/></clipPath></defs>
     <g clip-path="url(#gauge-logo-circle)"><svg x="158" y="156" width="44" height="44" viewBox="75 75 1030 1030"><image data-gauge-logo="true" href="${import.meta.env.BASE_URL}${EFACTORY_E_ICON}" width="1180" height="1180" preserveAspectRatio="xMidYMid meet"/></svg></g>
     <text x="40" y="212" text-anchor="middle" fill="#79dcc5" font-size="13">LEFT</text><text x="320" y="212" text-anchor="middle" fill="#f1b77e" font-size="13">RIGHT</text></svg>`;
