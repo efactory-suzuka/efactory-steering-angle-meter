@@ -1,6 +1,6 @@
 # eFactory Steering Angle Measure
 
-**v0.3.5 / Phase 6 beta UI. Core-only MAX gate and debug-only Rear Stand Compensation retained. Physical device and vehicle validation remain unverified.**
+**v0.3.6 / Phase 6 larger gauge UI. Core-only MAX gate and debug-only Rear Stand Compensation retained. Physical device and vehicle validation remain unverified.**
 
 Public URL: https://efactory-suzuka.github.io/efactory-steering-angle-meter/
 Diagnostics: https://efactory-suzuka.github.io/efactory-steering-angle-meter/?debug=1
@@ -36,7 +36,7 @@ Absolute orientation / compass supplies auxiliary quality only. Magnetic anomali
 
 ## Diagnostics and privacy
 
-?debug=1 exposes a separate scrollable diagnostics panel through the top-right diagnostics button; closing it restores the unchanged one-screen measurement shell. It retains raw Euler, absolute flag, provenance, normalized Quaternion, gyro, gravity, independent event timestamps / previous / Hz / dt / opposite-channel age / gaps, orientation/gyro residual, PCA A/B and freshness. It additionally shows formal reference, angle, MAX, core/aggregate quality and Rear Stand Compensation, with per-event phase6 snapshots. JSON copy / Blob save remain local, storing only the latest eight seconds. The current app exports build 0.3.5-phase6-beta, source physical-unverified and physicalValidation UNVERIFIED. Synthetic exports are explicitly marked synthetic; regression tests retain the earlier Phase 5 export default.
+?debug=1 exposes a separate scrollable diagnostics panel through the top-right diagnostics button; closing it restores the unchanged one-screen measurement shell. It retains raw Euler, absolute flag, provenance, normalized Quaternion, gyro, gravity, independent event timestamps / previous / Hz / dt / opposite-channel age / gaps, orientation/gyro residual, PCA A/B and freshness. It additionally shows formal reference, angle, MAX, core/aggregate quality and Rear Stand Compensation, with per-event phase6 snapshots. JSON copy / Blob save remain local, storing only the latest eight seconds. The current app exports build 0.3.6-phase6-large-gauge, source physical-unverified and physicalValidation UNVERIFIED. Synthetic exports are explicitly marked synthetic; regression tests retain the earlier Phase 5 export default.
 No sensor uploads, external analytics, account registration, GPS or external fonts. Raw diagnostic logs, test report JSON and local review screenshots are excluded from the public repository. Shared logs may contain userAgent; the user chooses whether to share them.
 Branding and the official site link are configured in src/config/branding.ts. Without a supplied logo, text fallback is displayed.
 
@@ -63,3 +63,5 @@ The debug card and local JSON contain raw/corrected angles, estimated body yaw, 
 All thresholds and bounded search limits in src/config/rearStand.ts are provisional. Display resolution is 0.1°, with full double-precision calculations; it is not a demonstrated accuracy guarantee. No accelerometer-to-position integration. [REAR_STAND_EXPERIMENT.md](REAR_STAND_EXPERIMENT.md) derives rotation order, numerical conditioning and limits. [DEVICE_TEST_PROTOCOL.md](DEVICE_TEST_PROTOCOL.md) describes the required vehicle comparison.
 
 2026-10-03 beta UI: display β版 beside the app name and the short notice 測定値は参考値としてご利用ください。 on the measurement screen. The normal URL has no diagnostic button or diagnostic URL link. The existing ?debug=1 route retains its diagnostic button, raw data, local JSON export and initial-OFF experiment. Formal measurement calculations remain unchanged.
+
+2026-10-03 larger gauge: remove the viewport-based dial height cap, reduce vertical gaps, and place LEFT MAX / RIGHT MAX / LOCK TO LOCK in one row to give the meter more space. Beta notice, hidden normal diagnostic entry and measurement calculations remain unchanged.
