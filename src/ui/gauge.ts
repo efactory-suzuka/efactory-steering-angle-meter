@@ -14,8 +14,8 @@ export function steeringGauge(v:GaugeValues){
     <path d="M180 18 A160 160 0 0 1 340 178" fill="none" stroke="#ba895e" stroke-width="3"/>
     ${ticks.join('')}${marker(v.left,'LEFT')}${marker(v.right,'RIGHT')}
     <line data-needle="true" x1="180" y1="178" x2="${p.x}" y2="${p.y}" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
-    <defs><clipPath id="gauge-logo-circle"><circle cx="180" cy="178" r="16"/></clipPath></defs>
-    <g clip-path="url(#gauge-logo-circle)"><svg x="164" y="162" width="32" height="32" viewBox="75 75 1030 1030"><image data-gauge-logo="true" href="${import.meta.env.BASE_URL}${EFACTORY_E_ICON}" width="1180" height="1180" preserveAspectRatio="xMidYMid meet"/></svg></g>
+    <defs><clipPath id="gauge-logo-circle"><circle cx="180" cy="178" r="22"/></clipPath></defs>
+    <g clip-path="url(#gauge-logo-circle)"><svg x="158" y="156" width="44" height="44" viewBox="75 75 1030 1030"><image data-gauge-logo="true" href="${import.meta.env.BASE_URL}${EFACTORY_E_ICON}" width="1180" height="1180" preserveAspectRatio="xMidYMid meet"/></svg></g>
     <text x="40" y="212" text-anchor="middle" fill="#79dcc5" font-size="13">LEFT</text><text x="320" y="212" text-anchor="middle" fill="#f1b77e" font-size="13">RIGHT</text></svg>`;
 }
 // Retired guide for historical regression API only; not rendered by the app.
