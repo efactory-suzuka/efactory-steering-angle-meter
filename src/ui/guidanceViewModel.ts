@@ -37,7 +37,7 @@ export class GuidanceViewModel {
     if(this.controller!==c){this.controller=c;this.state='';this.lastReading=undefined;this.lastRecord=undefined;this.recordUntil=0;this.pendingIntent='';}
     if(this.state!==c.state){this.state=c.state;this.pendingIntent='';if(c.state!=='MEASURING'){this.lastRecord=undefined;this.recordUntil=0;this.lastReading=undefined;}this.select(c.state==='MEASURING'?this.operation(c):operationStages[c.state]);}
     // Quality-only updates do not run the primary decision path.
-    this.secondaryStatus=c.state==='MEASURING'&&(c.quality?.overall==='CHECK'||c.quality?.overall==='RETRY')?CHECK_STATUS:null;
+    this.secondaryStatus=c.state==='MEASURING'&&c.quality?.overall==='CHECK'?CHECK_STATUS:null;
     if(c.state==='MEASURING'){
       const record=c.max.lastRecord;
       if(record&&record!==this.lastRecord){
