@@ -5,6 +5,10 @@ import * as V from '../core/math/vec3';
 import {TH} from '../config/thresholds';
 import {pca3} from '../core/math/pca3';
 export const goodQuality=():MeasurementQuality=>({axis:'GOOD',swing:'GOOD',gravity:'GOOD',absolute:'UNAVAILABLE'});
+export type CoreQuality='GOOD'|'CHECK'|'RETRY';
+export function coreQuality(q:Pick<MeasurementQuality,'axis'|'swing'|'gravity'>):CoreQuality{
+  return [q.axis,q.swing,q.gravity].includes('BAD')?'RETRY':[q.axis,q.swing,q.gravity].includes('CHECK')?'CHECK':'GOOD';
+}
 export function overallQuality(q:MeasurementQuality){return [q.axis,q.swing,q.gravity].includes('BAD')?'RETRY':[q.axis,q.swing,q.gravity].includes('CHECK')?'CHECK':q.absolute==='UNSTABLE'?'MAGNETIC':q.absolute==='CHECK'?'CHECK':'GOOD';}
 class HeldBad {
   private since?:number;

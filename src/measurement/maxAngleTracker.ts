@@ -1,7 +1,10 @@
 import type {MeasurementQuality} from '../core/types';
 import {TH} from '../config/thresholds';
-import {overallQuality} from './qualityMonitor';
-export interface StableSample {time:number;liveAngleDeg:number;gyroDps:number;quality:MeasurementQuality}
+import {overallQuality,type CoreQuality} from './qualityMonitor';
+type SampleValues={time:number;liveAngleDeg:number;gyroDps:number};
+// Production passes coreQuality explicitly. The full-quality branch is the
+// historical v0.3.3 API, kept unchanged for existing regression consumers.
+export type StableSample=SampleValues&({coreQuality:CoreQuality;quality?:never}|{quality:MeasurementQuality;coreQuality?:never});
 export interface MaxRecord {side:'LEFT'|'RIGHT';angle:number;previous:number;time:number}
 export class MaxAngleTracker {
   confirmedRightMaxDeg=0;confirmedLeftMaxDeg=0;observedPeakRightDeg=0;observedPeakLeftDeg=0;stableCandidateDeg?:number;
@@ -16,7 +19,8 @@ export class MaxAngleTracker {
     const prev=this.window.at(-1);
     if(prev&&(s.time<=prev.time||s.time-prev.time>TH.MAX_STABLE_SAMPLE_GAP_MS))this.window=[];
     this.observedPeakRightDeg=Math.max(this.observedPeakRightDeg,s.liveAngleDeg);this.observedPeakLeftDeg=Math.min(this.observedPeakLeftDeg,s.liveAngleDeg);
-    if(overallQuality(s.quality)==='CHECK'||[s.quality.axis,s.quality.swing,s.quality.gravity].some(x=>x!=='GOOD')||s.gyroDps>TH.STABLE_GYRO_MAX_DPS){this.resetStillness();return;}
+    const blocked=s.coreQuality!==undefined?s.coreQuality!=='GOOD':overallQuality(s.quality)==='CHECK'||[s.quality.axis,s.quality.swing,s.quality.gravity].some(x=>x!=='GOOD');
+    if(blocked||s.gyroDps>TH.STABLE_GYRO_MAX_DPS){this.resetStillness();return;}
     this.window.push(s);
     while(this.window.length>1&&this.window[1].time<=s.time-TH.STABLE_DURATION_MS)this.window.shift();
     const angles=this.window.map(x=>x.liveAngleDeg);

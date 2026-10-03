@@ -5,7 +5,7 @@ import {SensorAdapter,type AdapterOutput,type OrientationSource,type RawOrientat
 import {requestSensorPermissions,type PermissionAPI} from './sensors/permissions';
 import {diagnosticSensorHealth} from './sensors/sensorHealth';
 import {SensorDiagnostics} from './debug/sensorDiagnostics';
-import {MeasurementController} from './measurement/measurementController';
+import {VehicleValidationController as MeasurementController} from './measurement/vehicleValidationController';
 import {steeringGauge} from './ui/gauge';
 import {freeMountGuideSvg} from './ui/freeMountGuide';
 import {holdLabel} from './ui/instructions';
@@ -13,6 +13,8 @@ import {GuidanceViewModel} from './ui/guidanceViewModel';
 import {bindFinishActivation} from './ui/finishActivation';
 import {asyncSensorMotion} from './simulation/asyncSensorMotion';
 import {syntheticMotion} from './simulation/syntheticMotion';
+import {rearStandMotion} from './simulation/rearStandMotion';
+import {REAR_STAND} from './config/rearStand';
 import * as Q from './core/math/quaternion';
 import * as V from './core/math/vec3';
 
@@ -32,13 +34,14 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML=`
 <footer class="footer"><div class="privacy">センサーデータは端末内処理・外部送信なし<br>位置情報・アカウント登録は不要です。</div><div class="footer-right"><a id="brand-link" hidden rel="noopener noreferrer" target="_blank"><img class="logo" id="efactory-logo" alt="eFactory" hidden><span id="brand-fallback">eFactory</span></a><span>Developed by eFactory</span></div></footer>
 </main>
 ${debug?`<aside id="diagnostic-panel" class="diagnostic-panel" hidden><button id="debug-close" class="secondary">診断を閉じる</button><section class="card debug"><div class="card-head"><h2>Sensor Diagnostics</h2><span class="pill">LOCAL ONLY</span></div><p class="muted">Phase 5の生データ・A/B PCA診断を維持。重力符号・端末の挙動・閾値は実機未検証です。</p><div id="demo-notice" class="demo-notice" hidden>合成データを表示中です。実機の取得結果ではありません。</div>
-<div class="actions debug-controls"><button class="secondary" id="copy">JSONをコピー</button><button class="secondary" id="download">JSONを保存</button><button class="secondary" id="synthetic">合成データを確認</button><button class="secondary" id="synthetic-jump">5°基準ジャンプを確認</button><button class="secondary" id="mount-demo">固定ガイドを合成データで確認</button><button class="secondary" id="measurement-demo">測定フローを合成データで確認</button><button class="secondary" id="check-demo">CHECKと保持表示を合成確認</button></div>
+<div class="actions debug-controls"><button class="secondary" id="copy">JSONをコピー</button><button class="secondary" id="download">JSONを保存</button><button class="secondary" id="synthetic">合成データを確認</button><button class="secondary" id="synthetic-jump">5°基準ジャンプを確認</button><button class="secondary" id="mount-demo">固定ガイドを合成データで確認</button><button class="secondary" id="measurement-demo">測定フローを合成データで確認</button><button class="secondary" id="check-demo">Absolute CHECKの保持を合成確認</button><button class="secondary" id="core-check-demo">Core CHECKの保持を合成確認</button><button class="secondary" id="rear-stand-demo">リアスタンドYawを合成確認</button></div>
+<section class="rear-stand-card"><h3>Rear Stand Compensation</h3><label class="rear-switch"><input type="checkbox" id="rear-stand-enabled">実験補正 <b id="rear-stand-mode">OFF</b></label><p class="muted">実験・実機未検証。車体の余計な回転が主にYawという仮定です。通常画面の測定値は補正しません。0.1°は表示分解能です。</p><dl class="rear-metrics"><div><dt>Raw steering</dt><dd id="rear-raw">—</dd></div><div><dt>Corrected steering</dt><dd id="rear-corrected">—</dd></div><div><dt>Estimated body yaw</dt><dd id="rear-yaw">—</dd></div><div><dt>Model residual</dt><dd id="rear-residual">—</dd></div><div><dt>Axis vs gravity</dt><dd id="rear-axis">—</dd></div><div><dt>Condition</dt><dd id="rear-condition">—</dd></div><div><dt>Compensation</dt><dd id="rear-status">OFF</dd></div><div><dt>Observability</dt><dd id="rear-observable">—</dd></div></dl><dl class="rear-metrics"><div><dt>Raw LEFT MAX</dt><dd id="rear-raw-left">—</dd></div><div><dt>Raw RIGHT MAX</dt><dd id="rear-raw-right">—</dd></div><div><dt>Corrected LEFT MAX</dt><dd id="rear-corrected-left">—</dd></div><div><dt>Corrected RIGHT MAX</dt><dd id="rear-corrected-right">—</dd></div></dl><pre id="rear-stand-detail"></pre></section>
 <div class="message" id="export-message" role="status"></div><textarea class="copyarea" id="copy-fallback" hidden aria-label="手動コピー用JSON" readonly></textarea>
 <div class="debuggrid"><div><h3>DeviceOrientation / Quaternion</h3><pre id="orientation-detail"></pre></div><div><h3>Gyro / Acceleration</h3><pre id="motion-detail"></pre></div><div><h3>非同期イベント時刻・鮮度</h3><pre id="timing-detail"></pre></div><div><h3>Orientation / Gyro整合性</h3><pre id="consistency-detail"></pre></div><div><h3>PCA A · raw gyroDeviceDps</h3><pre id="pca-raw-detail"></pre></div><div><h3>PCA B · diagnostic gyroZeroDps</h3><pre id="pca-transformed-detail"></pre></div><div><h3>正式測定 / MAX / Quality</h3><pre id="measurement-detail"></pre></div></div></section><div class="actions debug-controls"><button id="rezero" class="secondary" hidden>再ZERO</button><button id="stop" class="secondary" hidden>一時停止</button></div><div id="quality-components"></div><div id="absolute-hint"></div><span id="state"></span></aside>`:''}
 `;
 const el=(id:string)=>document.getElementById(id)!;
 const button=(id:string)=>el(id) as HTMLButtonElement;
-let controller=new MeasurementController(),diagnostics=new SensorDiagnostics(),guidance=new GuidanceViewModel();
+let controller=new MeasurementController(),diagnostics=new SensorDiagnostics(),guidance=new GuidanceViewModel('CORE');
 let latest:AdapterOutput|undefined,rawMotion:unknown,rawOrientation:unknown;
 let rawBySource:Partial<Record<OrientationSource,RawOrientation>>={};
 let active=false,syntheticMode=false,generation=0,startedAt=0,captureStartedIso:string|null=null,syntheticShownAt=0,resumeFreshnessAfter=0;
@@ -69,8 +72,8 @@ if(debug)button('stop').addEventListener('click',()=>{disconnect();controller.pa
 (el('invert') as HTMLInputElement).addEventListener('change',()=>{controller.settings.invertLeftRight=(el('invert') as HTMLInputElement).checked;});
 // Visibility and viewport events cannot send FINISH or alter the formal state.
 // Stop the hold clock while hidden; freshness is checked after returning/fresh input.
-document.addEventListener('visibilitychange',()=>{controller.center.reset();controller.max.resetStillness();if(!document.hidden)resumeFreshnessAfter=performance.now()+TH.SENSOR_STALE_MS;});
-window.addEventListener('pagehide',()=>{controller.center.reset();controller.max.resetStillness();});
+document.addEventListener('visibilitychange',()=>{controller.center.reset();controller.max.resetStillness();controller.rearStand.resetHold();if(!document.hidden)resumeFreshnessAfter=performance.now()+TH.SENSOR_STALE_MS;});
+window.addEventListener('pagehide',()=>{controller.center.reset();controller.max.resetStillness();controller.rearStand.resetHold();});
 const fmt=(a:number|null|undefined)=>a===null||a===undefined?'—':`${a.toFixed(1)}°`;
 function setText(id:string,value:string){if(el(id).textContent!==value)el(id).textContent=value;}
 function render(){
@@ -81,7 +84,7 @@ function render(){
   if(debug)el('state').textContent=s;el('gauge').innerHTML=steeringGauge({range:controller.gaugeRange,displayAngleDeg:valid?r?.displayAngleDeg??0:0,left,right});
   el('live-angle').textContent=valid?fmt(r?.displayAngleDeg):'—';el('side').textContent=valid?r?.steeringSide??'CENTER':'CENTER';
   el('left-max').textContent=fmt(s==='RESULT'&&left!==null?Math.abs(left):left);el('right-max').textContent=fmt(right);el('lock').textContent=fmt(m.lockToLockDeg);
-  const overall=valid?q?.overall??'CHECK':s==='REFERENCE_LOST'?'RETRY':'CHECK';el('overall-quality').textContent=s==='RESULT'&&!m.complete&&overall==='GOOD'?'CHECK':overall;
+  const overall=valid?(controller.coreQuality==='GOOD'&&q?.quality.absolute==='UNSTABLE'?'MAGNETIC':controller.coreQuality):s==='REFERENCE_LOST'?'RETRY':'CHECK';el('overall-quality').textContent=s==='RESULT'&&!m.complete&&overall==='GOOD'?'CHECK':overall;
   if(debug)el('quality-components').textContent=q?`axis ${q.quality.axis} · swing ${q.quality.swing} · gravity ${q.quality.gravity} · absolute ${q.quality.absolute}`:'axis — · swing — · gravity — · absolute —';
   if(debug)el('absolute-hint').textContent=!q||q.quality.absolute==='UNAVAILABLE'?'Absolute reference unavailable':q.quality.absolute==='UNSTABLE'?'MAGNETIC · 磁気基準が不安定です。切れ角計算には使用しません。':'Absolute reference · 補助Qualityのみ';
   el('measurement-mode').hidden=!syntheticMode;
@@ -103,6 +106,13 @@ function render(){
   (el('invert') as HTMLInputElement).checked=controller.settings.invertLeftRight;(el('invert') as HTMLInputElement).disabled=s!=='MOUNT_GUIDE'&&s!=='CENTER_WAIT';
   el('result-note').hidden=s!=='RESULT';el('result-note').textContent=m.complete?'左右MAXは静止区間の中央値です。瞬間ピークではありません。':'片側または両側の静止MAXが未確定です。Lock-to-Lockは未算出です。';
   if(debug){
+    const rear=controller.snapshot().rearStandCompensation;
+    (el('rear-stand-enabled') as HTMLInputElement).checked=rear.enabled;setText('rear-stand-mode',rear.enabled?'ON':'OFF');
+    setText('rear-raw',fmt(rear.rawSteeringDeg));setText('rear-corrected',fmt(rear.correctedSteeringDeg));setText('rear-yaw',rear.estimatedBodyYawDeg===null?'—':`${rear.estimatedBodyYawDeg>=0?'+':''}${rear.estimatedBodyYawDeg.toFixed(1)}°`);
+    setText('rear-residual',fmt(rear.modelResidualDeg));setText('rear-axis',fmt(rear.axisGravityAngleDeg));setText('rear-condition',rear.conditionNumber===null?'—':typeof rear.conditionNumber==='number'?rear.conditionNumber.toFixed(1):rear.conditionNumber);
+    setText('rear-raw-left',rear.rawConfirmedLeftMaxDeg<=-TH.MIN_LOCK_ANGLE_DEG?fmt(rear.rawConfirmedLeftMaxDeg):'—');setText('rear-raw-right',rear.rawConfirmedRightMaxDeg>=TH.MIN_LOCK_ANGLE_DEG?fmt(rear.rawConfirmedRightMaxDeg):'—');
+    setText('rear-corrected-left',rear.correctedMaxValid&&rear.correctedConfirmedLeftMaxDeg<=-TH.MIN_LOCK_ANGLE_DEG?fmt(rear.correctedConfirmedLeftMaxDeg):'—');setText('rear-corrected-right',rear.correctedMaxValid&&rear.correctedConfirmedRightMaxDeg>=TH.MIN_LOCK_ANGLE_DEG?fmt(rear.correctedConfirmedRightMaxDeg):'—');
+    setText('rear-status',rear.status);setText('rear-observable',rear.observabilityStatus);setText('rear-stand-detail',JSON.stringify(rear,null,2));
     const f=latest?.frame,p=latest?.phase5;
     el('orientation-detail').textContent=JSON.stringify({DeviceOrientation:rawOrientation??null,rawOrientationBySource:rawBySource,eventOrientationSource:latest?.orientationSource??'UNAVAILABLE',orientationSource:f?.orientationSource??'UNAVAILABLE',normalizedQuaternion:f?.diagnosticOrientation??null,relativeOrientation:f?.orientation??null,absoluteQuaternion:f?.absoluteOrientation??null},null,2);
     el('motion-detail').textContent=JSON.stringify({rawDeviceMotion:rawMotion??null,gyroDeviceDps:f?.gyroDeviceDps??null,accelerationIncludingGravity:f?.accelerationIncludingGravity??null,accelerationIncludingGravityMagnitude:p?.accelerationIncludingGravityMagnitude??null,accelerationConvention:'RAW_UNVERIFIED_POLARITY'},null,2);
@@ -116,27 +126,30 @@ function render(){
 let previousRender=0;
 function paint(time:number){if(time-previousRender>=40){render();previousRender=time;}requestAnimationFrame(paint);}render();requestAnimationFrame(paint);
 if(debug){
+  el('rear-stand-enabled').addEventListener('change',()=>{controller.rearStand.setEnabled((el('rear-stand-enabled') as HTMLInputElement).checked);render();});
   el('debug-toggle').addEventListener('click',()=>{el('diagnostic-panel').hidden=false;});
   el('debug-close').addEventListener('click',()=>{el('diagnostic-panel').hidden=true;});
-  const prepareExport=()=>{const json=diagnostics.exportJSON({userAgent:navigator.userAgent,secureContext:window.isSecureContext,screenAngle:screen.orientation?.angle??null,capturedAtIso:captureStartedIso,exportedAtIso:new Date().toISOString(),source:syntheticMode?'synthetic':'physical-unverified',state:controller.state,phase:6,formalMeasurementEnabled:true,physicalValidation:'UNVERIFIED',clock:'PERFORMANCE_NOW_RECEIPT',pcaUnits:{duration:'seconds',totalRotation:'degrees'},thresholds:TH,accelerationConvention:'RAW_UNVERIFIED_POLARITY',measurement:controller.snapshot()},'0.3.3-phase6-axis');const box=el('copy-fallback') as HTMLTextAreaElement;box.hidden=false;box.value=json;return json;};
+  const prepareExport=()=>{const json=diagnostics.exportJSON({userAgent:navigator.userAgent,secureContext:window.isSecureContext,screenAngle:screen.orientation?.angle??null,capturedAtIso:captureStartedIso,exportedAtIso:new Date().toISOString(),source:syntheticMode?'synthetic':'physical-unverified',state:controller.state,phase:6,formalMeasurementEnabled:true,physicalValidation:'UNVERIFIED',clock:'PERFORMANCE_NOW_RECEIPT',rearStandConfig:REAR_STAND,pcaUnits:{duration:'seconds',totalRotation:'degrees'},thresholds:TH,accelerationConvention:'RAW_UNVERIFIED_POLARITY',measurement:controller.snapshot()},'0.3.4-phase6-rearstand');const box=el('copy-fallback') as HTMLTextAreaElement;box.hidden=false;box.value=json;return json;};
   el('copy').addEventListener('click',async()=>{const json=prepareExport();try{await navigator.clipboard.writeText(json);el('export-message').textContent='直近8秒のJSONをコピーしました。';}catch{(el('copy-fallback') as HTMLTextAreaElement).select();el('export-message').textContent='自動コピーできません。JSON欄を長押ししてコピーしてください。';}});
   el('download').addEventListener('click',()=>{const a=document.createElement('a'),blob=new Blob([prepareExport()],{type:'application/json'});a.href=URL.createObjectURL(blob);a.download=`efactory-sensor-${syntheticMode?'synthetic':'physical'}-${new Date().toISOString().replace(/[:.]/g,'-')}.json`;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);el('export-message').textContent='保存を開始しました。保存できない場合はJSON欄をコピーしてください。';});
-  const syntheticReset=()=>{disconnect();syntheticMode=true;syntheticShownAt=performance.now();resetLogs();controller=new MeasurementController();el('demo-notice').hidden=false;};
+  const syntheticReset=()=>{const enabled=controller.rearStand.enabled;disconnect();syntheticMode=true;syntheticShownAt=performance.now();resetLogs();controller=new MeasurementController();controller.rearStand.setEnabled(enabled);el('demo-notice').hidden=false;};
   const showSynthetic=(jump:boolean)=>{syntheticReset();for(const out of asyncSensorMotion({orientationHz:30,gyroHz:60,stationary:jump,jumpAtMs:jump?2300:undefined,durationMs:jump?2320:2400}))accept(out);render();};
   el('synthetic').addEventListener('click',()=>showSynthetic(false));el('synthetic-jump').addEventListener('click',()=>showSynthetic(true));
   el('mount-demo').addEventListener('click',()=>{
     syntheticReset();controller.start(0);controller.granted(0);accept({frame:syntheticMotion([{timeMs:0,rightAngleDeg:0},{timeMs:20,rightAngleDeg:0}]).frames[0],accelerationConvention:'RAW_UNVERIFIED_POLARITY'});render();
   });
-  const measurementDemo=(withCheck=false)=>{
+  const measurementDemo=(check:'NONE'|'ABSOLUTE'|'CORE'='NONE')=>{
     syntheticReset();controller.start(0);controller.granted(0);
     const keys=[{timeMs:0,rightAngleDeg:0},{timeMs:900,rightAngleDeg:0},{timeMs:2900,rightAngleDeg:30},{timeMs:3800,rightAngleDeg:30},{timeMs:4300,rightAngleDeg:32},{timeMs:6000,rightAngleDeg:32},{timeMs:10000,rightAngleDeg:-35.4},{timeMs:12000,rightAngleDeg:-35.4},{timeMs:16000,rightAngleDeg:36.1},{timeMs:18000,rightAngleDeg:36.1}];
-    if(withCheck)keys.push({timeMs:19500,rightAngleDeg:40},{timeMs:19900,rightAngleDeg:40},{timeMs:20700,rightAngleDeg:40});
+    if(check!=='NONE')keys.push({timeMs:19500,rightAngleDeg:40},{timeMs:19900,rightAngleDeg:40},{timeMs:20700,rightAngleDeg:40});
     const motion=syntheticMotion(keys);
-    for(const frame of motion.frames){const absoluteOrientation=withCheck&&frame.timestampMs>=19920?Q.multiply(Q.fromAxisAngle(V.vec(0,0,1),7),frame.orientation!):frame.orientation;
-      accept({frame:{...frame,absoluteOrientation,absoluteTimestampMs:frame.timestampMs,diagnosticOrientation:frame.orientation,diagnosticOrientationTimestampMs:frame.orientationTimestampMs,orientationSource:'RELATIVE'},eventChannel:'devicemotion',accelerationConvention:'RAW_UNVERIFIED_POLARITY'});if(controller.state==='MOUNT_GUIDE'){controller.mounted();controller.captureCenter();}}
+    for(const frame of motion.frames){const absoluteOrientation=check==='ABSOLUTE'&&frame.timestampMs>=19920?Q.multiply(Q.fromAxisAngle(V.vec(0,0,1),7),frame.orientation!):frame.orientation;
+      const acceleration=check==='CORE'&&frame.timestampMs>=19920?V.vec(.6,0,0):frame.acceleration;
+      accept({frame:{...frame,acceleration,absoluteOrientation,absoluteTimestampMs:frame.timestampMs,diagnosticOrientation:frame.orientation,diagnosticOrientationTimestampMs:frame.orientationTimestampMs,orientationSource:'RELATIVE'},eventChannel:'devicemotion',accelerationConvention:'RAW_UNVERIFIED_POLARITY'});if(controller.state==='MOUNT_GUIDE'){controller.mounted();controller.captureCenter();}}
     syntheticShownAt=performance.now();el('diagnostic-panel').hidden=true;render();
   };
-  el('measurement-demo').addEventListener('click',()=>measurementDemo());el('check-demo').addEventListener('click',()=>measurementDemo(true));
+  el('measurement-demo').addEventListener('click',()=>measurementDemo());el('check-demo').addEventListener('click',()=>measurementDemo('ABSOLUTE'));el('core-check-demo').addEventListener('click',()=>measurementDemo('CORE'));
+  el('rear-stand-demo').addEventListener('click',()=>{syntheticReset();controller.start(0);controller.granted(0);for(const frame of rearStandMotion()){accept({frame,eventChannel:'devicemotion',accelerationConvention:'RAW_UNVERIFIED_POLARITY'});if(controller.state==='MOUNT_GUIDE'){controller.mounted();controller.captureCenter();}}syntheticShownAt=performance.now();render();});
 }
 const logo=el('efactory-logo') as HTMLImageElement;
 logo.addEventListener('load',()=>{logo.hidden=false;el('brand-fallback').hidden=true;});logo.addEventListener('error',()=>{logo.hidden=true;el('brand-fallback').hidden=false;});logo.src=`${import.meta.env.BASE_URL}${EFACTORY_LOGO}`;

@@ -54,11 +54,14 @@ export class MeasurementController {
         if(motion){
           this.quality=this.qualityMonitor.update(f,this.reading);
           if(this.quality.referenceLost){this.machine.send('LOST');this.max.invalidate();this.notice='基準位置が変化した可能性があります';return;}
-          this.max.add({time:f.timestampMs,liveAngleDeg:this.reading.liveAngleDeg,gyroDps:V.norm(f.gyroDeviceDps!),quality:this.quality.quality});
+          this.trackMax(f);
         }
       }
     }catch(error){this.notice=error instanceof Error?error.message:'センサーデータを確認してください';if(this.state==='CENTER_CAPTURE')this.center.reset();else this.fail(this.notice);}
   }
+  // Historical aggregate-quality policy. Production overrides with core-only
+  // samples in VehicleValidationController; the original 264 tests stay intact.
+  protected trackMax(f:SensorFrame){this.max.add({time:f.timestampMs,liveAngleDeg:this.reading!.liveAngleDeg,gyroDps:V.norm(f.gyroDeviceDps!),quality:this.quality!.quality});}
   snapshot(){return {state:this.state,settings:this.settings,centerProgress:this.center.progress,zero:this.zero??null,steeringAxisZero:this.axis??null,calibration:this.calibration.summary,
     reading:this.reading??null,quality:this.quality??null,max:{valid:this.max.valid,complete:this.max.complete,stableCandidateDeg:this.max.stableCandidateDeg??null,
       stableElapsedMs:this.max.stableElapsedMs,lastRecord:this.max.lastRecord??null,confirmedLeftMaxDeg:this.max.confirmedLeftMaxDeg,confirmedRightMaxDeg:this.max.confirmedRightMaxDeg,observedPeakLeftDeg:this.max.observedPeakLeftDeg,observedPeakRightDeg:this.max.observedPeakRightDeg,lockToLockDeg:this.max.lockToLockDeg},gaugeRange:this.gaugeRange};}

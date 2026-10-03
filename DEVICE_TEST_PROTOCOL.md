@@ -48,7 +48,7 @@
 
 1. 操作直後、取得を続けたまま右上の「診断」を開き「JSONをコピー」をタップする。そのクリック時点のログを画面内JSON欄へ固定し、クリップボードへコピーする。
 2. 自動コピーに失敗した場合は、表示された「手動コピー用JSON」を長押しして全文コピーする。「JSONを保存」のネイティブ保存挙動はiPhoneで確認する。
-3. JSONをファイルまたはメモへ貼り付け、ファイル名・動作・機種等のメモと対応させる。`build=0.3.3-phase6-axis`、`meta.source=physical-unverified`、`meta.physicalValidation=UNVERIFIED`、`frames`が空でないことを確認する。`formalMeasurementEnabled=true`は機能の実装状態を意味し、端末での検証済みを意味しない。
+3. JSONをファイルまたはメモへ貼り付け、ファイル名・動作・機種等のメモと対応させる。`build=0.3.4-phase6-rearstand`、`meta.source=physical-unverified`、`meta.physicalValidation=UNVERIFIED`、`frames`が空でないことを確認する。`formalMeasurementEnabled=true`は機能の実装状態を意味し、端末での検証済みを意味しない。
 4. `orientationSource`、raw orientation / motion、`timing`、`phase5.consistencyBySource`、`phase5.rawGyroPca`、`phase5.transformedGyroPca`が含まれることを確認する。UNAVAILABLE/nullもそのまま残す。
 5. JSONを共有する場合は内容を確認し、自分で選んで送る。アプリは自動送信しない。
 
@@ -79,9 +79,23 @@ Phase 6は既存設計に合わせTRANSFORMED_GYROを暫定採用し、RAW_GYRO�
 - 取付回転0°/90°/180°/270°・任意3D傾斜で、左右反転OFFの物理LEFTは負、RIGHTは正、MAXは正しい側へ格納されるか確認する。取り直すたびにCENTERと軸校正を実施する。
 - 中央記録のJSONに resolvedGravityUpSign と gravityOrientationAlignment を残す。生の加速度・姿勢もそのまま残す。AUTOの上下照合は実機未検証。
 - 0.7秒保持表示が静止で増え、動けば戻り、MAX記録/更新メッセージとマーカー移動が一致するか確認する。
-- CHECKでも針・角度・左右が更新され、既存MAXだけは保持されるか確認する。0.4秒保持→CHECKで0→GOODで0から700ms取り直すこと。CHECKだけで主指示が切り替わらず、独立した補助警告が表示されること。発生しなかったCHECKを実機で確認済みとしない。
+- core CHECKでも針・角度・左右が更新され、既存MAXだけは保持されるか確認する。0.4秒保持→core CHECKで0→core GOODで0から700ms取り直すこと。core CHECKだけで主指示が切り替わらず、独立した補助警告が表示されること。Absolute-only CHECKなら保持・MAX記録が継続し、この補助警告が出ないこと。発生しなかったCHECKを実機で確認済みとしない。
 - JSONのphase6.reading.signedTwistDeg / signedSteeringTwistDeg、steeringAxisZero、zero.upZero、calibration.axisUpAlignment / axisSignAmbiguous、MAX.stableElapsedMs、phase6.guidance.primaryInstruction / secondaryStatusを比較する。forwardZero/rightZeroは互換診断値であり車体方向ではない。
 - 実車のキャスターを変えるために分解等を行わず、caster=0°の確認は固定した鉛直軸治具等で行う。0°/25°/35°は合成テスト済み、実機の確認は未実施。
 - 通常測定画面でスクロール/スワイプを試しても終了せず、明示的な「測定終了」のタップでだけ結果へ進むか確認する。
 - Safariのアドレスバー、ホームインジケータ、画面回転、背景から復帰、保存/コピーを確認する。可視状態の変更自体ではRESULTにしないが、センサー欠落は別途SENSOR_ERRORにする。
 - 既存の7秒回転試験と8秒の端末内JSON保存は維持する。実機の精度や端末差を確認済みと扱わない。
+
+## 7. リアスタンド補正の実車比較（実験・未検証）
+
+1. Safariで `https://efactory-suzuka.github.io/efactory-steering-angle-meter/?debug=1` を開く。診断内Rear Stand Compensationは初期OFF。通常のCENTER・軸校正を行う。軸校正中の車体Yaw混入に注意し、車体が回らない支持条件で基準軸を取得した事実をメモする。
+2. 独立した角度治具等で車体に対するハンドル角度を記録し、車体Yawも床・室内基準から別に観察する。端末の表示値だけを正解として比較しない。
+3. 前輪を自由に動かせる支持条件と、リアスタンド支持・前輪床接地の条件を比較する。支持状態・車両・端末・取付姿勢をメモし、それぞれCENTERと軸校正を取り直す。純粋な並進と車体の回転を区別する。
+4. 診断で実験補正をONにする。同じ操作中の正式Rawと実験Correctedが同一JSONに入る。ゆっくり片側へ切り、1秒以上静止、中央へ戻る。反対側も同様に行い、各操作直後にJSONを保存する。直近8秒だけなので両側全操作を一つのログに収めようとせず、側ごとに保存する。
+5. `frames[].phase6.rearStandCompensation` のtimestampMs / rawSteeringDeg / correctedSteeringDeg / estimatedBodyYawDeg / modelResidualDeg / status / reason / coreQuality / axisGravityAngleDeg / separationSin / conditionNumber / correctedConfirmedLeftMaxDeg / correctedConfirmedRightMaxDeg を独立した基準角と突合する。通常MAXは同じsnapshot内のrawConfirmed...とphase6.max。生データ、PCA A/B、source、Hz/dt・ageも保存する。
+6. VALIDのときだけ補正値を比較する。CHECK/INVALID時のnullやreasonを削除しない。候補candidate...は正式値ではない。近平行軸ではUNOBSERVABLE/ILL_CONDITIONEDとなり、LEFT/RIGHT判定が可能でも補正不能であることを区別する。
+7. 各側の繰り返し、戻りゼロ、静止中のgyro bias、磁気のみCHECK、core CHECK、固定具のずれ、安全に試せる小Roll/Pitch、縦横/反転/斜め取付を比較する。小残差だけでは正しいYaw分離の証明にならないため、独立した角度基準との偏り・繰り返し性・誤補正/拒否を評価する。
+8. ON/OFFの切替は実験MAXをリセットする。新CENTER・PAUSED・SENSOR_ERROR・REFERENCE_LOSTも実験基準/MAXを無効化する。通常測定値は補正値に置き換わらない。0.1°は表示分解能であり、実証された正確さを意味しない。
+9. 合成ボタンは実車ログ取得では押さない。実車ログはphysical-unverifiedのまま保存する。共有する場合は本人が内容を確認して送る。アプリは外部へ自動送信しない。
+
+支持方法ごとの差、真の車体Yawとの一致、軸校正への混入、Roll/Pitchや固定滑りの検出限界、端末差、閾値の妥当性、再現性が未評価のため、現時点では正式採用しない。Phase 7以降は別途指示を待つ。

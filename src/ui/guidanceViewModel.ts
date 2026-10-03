@@ -1,6 +1,7 @@
 import type {MeasurementController} from '../measurement/measurementController';
 import {TH} from '../config/thresholds';
 import * as V from '../core/math/vec3';
+import {coreQuality} from '../measurement/qualityMonitor';
 export interface Instruction {step:number;title:string;help:string;success?:boolean}
 export const operationStages:Record<string,Instruction>={
   BOOT:{step:1,title:'ハンドルの切れ角を測る',help:'測定開始を押し、センサーの使用を許可してください'},
@@ -20,6 +21,8 @@ const holding:Instruction={step:4,title:'そのまま保持してください',h
 const measuring:Instruction={step:4,title:'測定中です',help:'左右それぞれいっぱいまで切り、0.7秒保持\n記録後も、大きな角度で保持すると自動更新'};
 /** Primary responds to state, records and debounced motion; quality owns secondary. */
 export class GuidanceViewModel {
+  // Legacy default retains the existing policy API. The app explicitly uses CORE.
+  constructor(readonly qualityBasis:'CORE'|'AGGREGATE_LEGACY'='AGGREGATE_LEGACY'){}
   primaryInstruction:Instruction=operationStages.BOOT;
   secondaryStatus:string|null=null;
   private controller?:MeasurementController;private state='';
@@ -37,7 +40,8 @@ export class GuidanceViewModel {
     if(this.controller!==c){this.controller=c;this.state='';this.lastReading=undefined;this.lastRecord=undefined;this.recordUntil=0;this.pendingIntent='';}
     if(this.state!==c.state){this.state=c.state;this.pendingIntent='';if(c.state!=='MEASURING'){this.lastRecord=undefined;this.recordUntil=0;this.lastReading=undefined;}this.select(c.state==='MEASURING'?this.operation(c):operationStages[c.state]);}
     // Quality-only updates do not run the primary decision path.
-    this.secondaryStatus=c.state==='MEASURING'&&c.quality?.overall==='CHECK'?CHECK_STATUS:null;
+    const check=c.quality&&(this.qualityBasis==='CORE'?coreQuality(c.quality.quality)==='CHECK':c.quality.overall==='CHECK');
+    this.secondaryStatus=c.state==='MEASURING'&&check?CHECK_STATUS:null;
     if(c.state==='MEASURING'){
       const record=c.max.lastRecord;
       if(record&&record!==this.lastRecord){
