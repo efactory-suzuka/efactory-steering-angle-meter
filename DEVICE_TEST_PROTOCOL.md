@@ -48,7 +48,7 @@
 
 1. 操作直後、取得を続けたまま右上の「診断」を開き「JSONをコピー」をタップする。そのクリック時点のログを画面内JSON欄へ固定し、クリップボードへコピーする。
 2. 自動コピーに失敗した場合は、表示された「手動コピー用JSON」を長押しして全文コピーする。「JSONを保存」のネイティブ保存挙動はiPhoneで確認する。
-3. JSONをファイルまたはメモへ貼り付け、ファイル名・動作・機種等のメモと対応させる。`build=0.3.7-phase6-axis-diagnostics`、`meta.source=physical-unverified`、`meta.physicalValidation=UNVERIFIED`、`frames`が空でないことを確認する。`formalMeasurementEnabled=true`は機能の実装状態を意味し、端末での検証済みを意味しない。
+3. JSONをファイルまたはメモへ貼り付け、ファイル名・動作・機種等のメモと対応させる。`build=0.3.8-phase6-steering-diagnostics`、`meta.source=physical-unverified`、`meta.physicalValidation=UNVERIFIED`、`frames`が空でないことを確認する。`formalMeasurementEnabled=true`は機能の実装状態を意味し、端末での検証済みを意味しない。
 4. `orientationSource`、raw orientation / motion、`timing`、`phase5.consistencyBySource`、`phase5.rawGyroPca`、`phase5.transformedGyroPca`が含まれることを確認する。UNAVAILABLE/nullもそのまま残す。
 5. JSONを共有する場合は内容を確認し、自分で選んで送る。アプリは自動送信しない。
 
@@ -110,3 +110,14 @@ Phase 6は既存設計に合わせTRANSFORMED_GYROを暫定採用し、RAW_GYRO�
 6. 右から開始したログ、左から開始したログをそれぞれ取得する。再CENTERで軸診断がリセットされることも確認する。
 
 既存のx/y/z回転試験の「1秒静止→約2秒で+30°→1秒静止→約2秒で復帰→1秒静止」は変更しない。軸成立条件や実機精度の結論は実ログ確認後に判断する。
+
+
+## 切れ角が小さく出る可能性を比較する（v0.3.8・診断のみ）
+
+1. 診断URL `https://efactory-suzuka.github.io/efactory-steering-angle-meter/?debug=1` をSafariで開き、通常どおりCENTER・軸校正を行う。Rear Stand CompensationはOFFのまま今回の値を取得できる。
+2. 「診断」を開き、Steering comparisonのSTEERING / ORIENTATION / AXISを確認する。Current live angleは正式live値、Display angleは通常画面の平滑化された表示値。Confirmed MAXは静止確定値で、未確定は `--`。
+3. 左右のロック位置で、それぞれ0.7秒・1秒・2秒・3秒・5秒の保持中にlive / Quaternion total / Twist / Axis differenceの変化を観察する。5秒保持が終わった直後、測定終了の前にJSONをコピーまたは保存する。直近8秒なので、左右は各ロック位置で別々に保存すると保持開始から比較できる。
+4. `frames[].phase6.steeringDiagnostics` と既存のframe.timestampMs、timing.eventTimestampMs、orientationTimestampMs / motionTimestampMsを時系列で比較する。Quaternion rotation axisとAxis differenceは総回転角3°未満ではnull / N/A。総回転角は符号のない3次元回転量、Twist/live/MAXはLEFT負・RIGHT正。PCA axisとQuaternion axisは同じCENTER/Z0座標、軸差は軸の正負を同一視した0〜90°。
+5. 支持状態、端末機種・OS、取付姿勢、左右、保持時間と、別の方法で確認した物理角度がある場合はその測定方法・基準をJSONと対応するメモに残す。実ログをこの公開リポジトリへ保存しない。
+
+診断値から原因を自動判定しない。正式アルゴリズム、校正閾値、700msのMAX条件、Qualityや基準喪失の判定は変更していない。通常URLにこのカードは出ない。実機の測定精度や約4°の差の原因は未確認。
