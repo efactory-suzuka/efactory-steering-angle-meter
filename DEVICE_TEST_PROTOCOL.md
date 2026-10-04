@@ -48,7 +48,7 @@
 
 1. 操作直後、取得を続けたまま右上の「診断」を開き「JSONをコピー」をタップする。そのクリック時点のログを画面内JSON欄へ固定し、クリップボードへコピーする。
 2. 自動コピーに失敗した場合は、表示された「手動コピー用JSON」を長押しして全文コピーする。「JSONを保存」のネイティブ保存挙動はiPhoneで確認する。
-3. JSONをファイルまたはメモへ貼り付け、ファイル名・動作・機種等のメモと対応させる。`build=0.3.8-phase6-steering-diagnostics`、`meta.source=physical-unverified`、`meta.physicalValidation=UNVERIFIED`、`frames`が空でないことを確認する。`formalMeasurementEnabled=true`は機能の実装状態を意味し、端末での検証済みを意味しない。
+3. JSONをファイルまたはメモへ貼り付け、ファイル名・動作・機種等のメモと対応させる。`build=0.3.9-phase6-diagnostic-scroll`、`meta.source=physical-unverified`、`meta.physicalValidation=UNVERIFIED`、`frames`が空でないことを確認する。`formalMeasurementEnabled=true`は機能の実装状態を意味し、端末での検証済みを意味しない。
 4. `orientationSource`、raw orientation / motion、`timing`、`phase5.consistencyBySource`、`phase5.rawGyroPca`、`phase5.transformedGyroPca`が含まれることを確認する。UNAVAILABLE/nullもそのまま残す。
 5. JSONを共有する場合は内容を確認し、自分で選んで送る。アプリは自動送信しない。
 
@@ -121,3 +121,12 @@ Phase 6は既存設計に合わせTRANSFORMED_GYROを暫定採用し、RAW_GYRO�
 5. 支持状態、端末機種・OS、取付姿勢、左右、保持時間と、別の方法で確認した物理角度がある場合はその測定方法・基準をJSONと対応するメモに残す。実ログをこの公開リポジトリへ保存しない。
 
 診断値から原因を自動判定しない。正式アルゴリズム、校正閾値、700msのMAX条件、Qualityや基準喪失の判定は変更していない。通常URLにこのカードは出ない。実機の測定精度や約4°の差の原因は未確認。
+
+
+## 診断スクロールと数値復帰の確認（v0.3.9）
+
+1. 診断URLをSafariで再読み込みし、CENTER・軸校正まで通常操作する。「診断」を開くと上部にQuaternion total angle / Twist angle / Confirmed LEFT MAX / Confirmed RIGHT MAXが固定表示される。必要な値を見るためのスクロールは不要。
+2. 測定しながら詳細部分を上下へ短くスクロールする。上部の値と「計測中」が残ること、指を離した後にハンドル角度を変えると総回転・Twistが更新されることを確認する。
+3. 「センサー更新待ち」の間は最後の受信値であり新しい実測値ではない。短い欠落が復帰すると元のCENTER・確定MAXを保持して更新が再開する。欠落中の保持時間はMAXへ加算しない。復帰後は新しい700 ms保持が必要。
+4. 最大2秒の復帰待ちを超える実際の入力停止は従来どおりセンサーエラーになり、再測定が必要。基準喪失や一時停止/終了は独立の状態表示で区別する。正常なセンサー故障を無期限に隠さない。
+5. 数値が消える問題が残る場合は、上部の状態/メッセージと、直後のJSONを記録する。JSONのdiagnosticInteraction、既存event gap/Hz/freshness、frame timestamps、axis/quality/reference stateを比較する。実機での改善はこの確認を終えるまで未検証。
