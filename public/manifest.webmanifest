@@ -1,0 +1,19 @@
+{
+  "id": "./",
+  "name": "eFactory Steering Angle Measure",
+  "short_name": "Steering Angle",
+  "description": "eFactoryのステアリング切れ角測定アプリ（ベータ版）",
+  "lang": "ja",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#112b32",
+  "theme_color": "#112b32",
+  "prefer_related_applications": false,
+  "icons": [
+    {"src": "icons/efactory-e-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "icons/efactory-e-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "icons/efactory-e-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "source": "efactory-e-icon.png",
+  "sourceSha256": "bae01e4c2dcb6cb0acbff38446499e87b5ced01b6096747a7f6e436faaa3e9a1",
+  "resampling": "LANCZOS",
+  "background": "#000000",
+  "maskableSourceScale": 0.9,
+  "icons": [
+    {
+      "file": "efactory-e-192.png",
+      "size": 192,
+      "maskable": false,
+      "sha256": "ac5581879632c4aa005dfbddf82f1cf245faadd94596a1eb6c828d6d885de062"
+    },
+    {
+      "file": "efactory-e-512.png",
+      "size": 512,
+      "maskable": false,
+      "sha256": "cc95b569da5fdc0bc031e6469c9cdf4767ab58974a4996dc3d7bebcc859b30b8"
+    },
+    {
+      "file": "apple-touch-icon.png",
+      "size": 180,
+      "maskable": false,
+      "sha256": "2c51162199f7fef4e4346d7eead7ceb6adce5bc7f52e3ea83e53584db965f74c"
+    },
+    {
+      "file": "favicon-32.png",
+      "size": 32,
+      "maskable": false,
+      "sha256": "99e127224010a2ac126c80761a8453d240f3662c64efcd1d059b80b22413c641"
+    },
+    {
+      "file": "efactory-e-maskable-512.png",
+      "size": 512,
+      "maskable": true,
+      "sha256": "a982785f86ac91d76dc3a6c78154de080be14065830f173c21de310c954d2a30"
+    }
+  ]
+}

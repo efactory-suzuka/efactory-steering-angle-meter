@@ -48,7 +48,7 @@
 
 1. 操作直後、取得を続けたまま右上の「診断」を開き「JSONをコピー」をタップする。そのクリック時点のログを画面内JSON欄へ固定し、クリップボードへコピーする。
 2. 自動コピーに失敗した場合は、表示された「手動コピー用JSON」を長押しして全文コピーする。「JSONを保存」のネイティブ保存挙動はiPhoneで確認する。
-3. JSONをファイルまたはメモへ貼り付け、ファイル名・動作・機種等のメモと対応させる。`build=0.3.9-phase6-diagnostic-scroll`、`meta.source=physical-unverified`、`meta.physicalValidation=UNVERIFIED`、`frames`が空でないことを確認する。`formalMeasurementEnabled=true`は機能の実装状態を意味し、端末での検証済みを意味しない。
+3. JSONをファイルまたはメモへ貼り付け、ファイル名・動作・機種等のメモと対応させる。`build=0.3.10-phase6-home-install`、`meta.source=physical-unverified`、`meta.physicalValidation=UNVERIFIED`、`frames`が空でないことを確認する。`formalMeasurementEnabled=true`は機能の実装状態を意味し、端末での検証済みを意味しない。
 4. `orientationSource`、raw orientation / motion、`timing`、`phase5.consistencyBySource`、`phase5.rawGyroPca`、`phase5.transformedGyroPca`が含まれることを確認する。UNAVAILABLE/nullもそのまま残す。
 5. JSONを共有する場合は内容を確認し、自分で選んで送る。アプリは自動送信しない。
 
@@ -130,3 +130,12 @@ Phase 6は既存設計に合わせTRANSFORMED_GYROを暫定採用し、RAW_GYRO�
 3. 「センサー更新待ち」の間は最後の受信値であり新しい実測値ではない。短い欠落が復帰すると元のCENTER・確定MAXを保持して更新が再開する。欠落中の保持時間はMAXへ加算しない。復帰後は新しい700 ms保持が必要。
 4. 最大2秒の復帰待ちを超える実際の入力停止は従来どおりセンサーエラーになり、再測定が必要。基準喪失や一時停止/終了は独立の状態表示で区別する。正常なセンサー故障を無期限に隠さない。
 5. 数値が消える問題が残る場合は、上部の状態/メッセージと、直後のJSONを記録する。JSONのdiagnosticInteraction、既存event gap/Hz/freshness、frame timestamps、axis/quality/reference stateを比較する。実機での改善はこの確認を終えるまで未検証。
+
+## ホーム画面追加の実機確認（v0.3.10）
+
+1. 通常版 https://efactory-suzuka.github.io/efactory-steering-angle-meter/ を開く。診断URLの追加ボタンでは、先に通常版を開く案内が表示される。
+2. 開始前の「ホーム画面に追加」を押す。Androidでは利用可能なら確認画面、利用できなければブラウザメニューの案内が出る。iPhone/iPadでは共有→「ホーム画面に追加」→「追加」。項目がないブラウザではSafariで通常版を開く。
+3. eロゴの外周が欠けないこと、名前がSteering Angleであることを確認する。古いアイコンがある場合は別に追加して比較する（アプリは既存ショートカットを書き換えない）。
+4. 追加したアイコンから起動し、通常版が開くこと、診断ボタン・ホーム画面追加ボタンが表示されないことを確認する。ブラウザ表示ではなくstandalone起動かも確認する。
+5. センサー使用許可と通常測定フローを確認する。ブラウザで許可済みでもホーム起動側で再度許可が必要な場合がある。実機での動作はこの手順の実施前には未検証。
+6. Pages更新後に再起動・再読み込みし、JSONのbuildが0.3.10-phase6-home-installであることを診断URLで確認する。Service Worker/offline cacheは追加していない。アイコンやホーム画面名はOSに保存されるため、更新時に再追加が必要な場合がある。

@@ -1,6 +1,6 @@
 # eFactory Steering Angle Measure
 
-**v0.3.9 / Phase 6 diagnostic scroll recovery and pinned comparison values. Existing axis calibration guidance retained. Core-only MAX gate and debug-only Rear Stand Compensation retained. Physical device and vehicle validation remain unverified.**
+**v0.3.10 / Phase 6 home screen installation. Diagnostic scroll recovery and pinned comparison values retained. Existing axis calibration guidance retained. Core-only MAX gate and debug-only Rear Stand Compensation retained. Physical device and vehicle validation remain unverified.**
 
 Public URL: https://efactory-suzuka.github.io/efactory-steering-angle-meter/
 Diagnostics: https://efactory-suzuka.github.io/efactory-steering-angle-meter/?debug=1
@@ -36,7 +36,7 @@ Absolute orientation / compass supplies auxiliary quality only. Magnetic anomali
 
 ## Diagnostics and privacy
 
-?debug=1 exposes a separate scrollable diagnostics panel through the top-right diagnostics button; closing it restores the unchanged one-screen measurement shell. It retains raw Euler, absolute flag, provenance, normalized Quaternion, gyro, gravity, independent event timestamps / previous / Hz / dt / opposite-channel age / gaps, orientation/gyro residual, PCA A/B and freshness. It additionally shows formal reference, angle, MAX, core/aggregate quality and Rear Stand Compensation, with per-event phase6 snapshots. JSON copy / Blob save remain local, storing only the latest eight seconds. The current app exports build 0.3.9-phase6-diagnostic-scroll, source physical-unverified and physicalValidation UNVERIFIED. Synthetic exports are explicitly marked synthetic; regression tests retain the earlier Phase 5 export default.
+?debug=1 exposes a separate scrollable diagnostics panel through the top-right diagnostics button; closing it restores the unchanged one-screen measurement shell. It retains raw Euler, absolute flag, provenance, normalized Quaternion, gyro, gravity, independent event timestamps / previous / Hz / dt / opposite-channel age / gaps, orientation/gyro residual, PCA A/B and freshness. It additionally shows formal reference, angle, MAX, core/aggregate quality and Rear Stand Compensation, with per-event phase6 snapshots. JSON copy / Blob save remain local, storing only the latest eight seconds. The current app exports build 0.3.10-phase6-home-install, source physical-unverified and physicalValidation UNVERIFIED. Synthetic exports are explicitly marked synthetic; regression tests retain the earlier Phase 5 export default.
 No sensor uploads, external analytics, account registration, GPS or external fonts. Raw diagnostic logs, test report JSON and local review screenshots are excluded from the public repository. Shared logs may contain userAgent; the user chooses whether to share them.
 Branding and the official site link are configured in src/config/branding.ts. Without a supplied logo, text fallback is displayed.
 
@@ -101,3 +101,21 @@ The prior UI called the controller's irreversible freshness error path whenever 
 The sensor input callback continues independently of painting/scrolling. The hidden gauge is not rebuilt behind the overlay; large diagnostic JSON text redraws only while the overlay is open and at most every 200 ms. Pinned values still display the cached formal sample at the existing render rate. No timer generates sensor values. `frames[].phase6.diagnosticInteraction` and export metadata record waiting/deadline/recovery duration; config is `src/config/diagnosticInteraction.ts`, isolated from formal TH.
 
 Original 439 tests unchanged plus 16 scroll/summary regressions = 455 PASS. Tests reproduce the old freshness error, preserve zero/MAX on a short interruption and recover to a new angle, reject integrating long dt, require a new full 700 ms hold, expire after 2 s despite continuing gestures, retain original Debug OFF/unrelated outage handling, and check passive event binding and accurate state/last-sample labels. iPhone Safari touch scrolling and device-specific sensor delivery remain physical-unverified. No Phase 7 work.
+
+## Home screen installation (v0.3.10)
+
+The BOOT-only Home Screen control fits the existing secondary instruction slot. It is hidden during measurement and all other states, after installation, and when matchMedia('(display-mode: standalone)') or iOS navigator.standalone reports standalone. Installation has no access to measurement or sensor controllers.
+
+The Web App Manifest and HTML apple-touch-icon use relative Vite base URLs. Manifest id, start_url and scope resolve to the normal application directory, without debug=1. The home screen name is Steering Angle; the full name is eFactory Steering Angle Measure. A diagnostic URL shows a link to the normal page before offering installation, because manual iOS shortcuts can preserve the current page URL.
+
+The current gauge source public/efactory-e-icon.png (1180x1180) is resized with Lanczos by scripts/generate_home_icons.py (Pillow needed only for regeneration). PNGs: 192, 512, 180 apple-touch-icon, 32 favicon, and a separate 512 maskable icon. Transparent outer pixels are composited on black; the supplied logo is not redrawn. The maskable variant scales the original to 90% to retain the red outer ring within the centered circular safe area. public/icons/provenance.json records the source and output hashes.
+
+Chromium beforeinstallprompt is captured and invoked only after button activation. Dismissed/failed/missing events fall back to browser-menu guidance. appinstalled and accepted native installation hide the control. iOS guidance uses the browser Share button and Add to Home Screen; Safari is a fallback if the item is unavailable, not an assumption that Chrome cannot install.
+
+No Service Worker or offline cache was added. Current Chrome install criteria list HTTPS, engagement and a suitable manifest; menu installation is also available without an offline service worker. Native prompt timing/support varies by browser. References checked on 2026-10-05:
+- https://web.dev/articles/install-criteria
+- https://developer.chrome.com/blog/update-install-criteria (older 2023 details distinguished from current criteria)
+- https://support.apple.com/ja-jp/guide/iphone/iphea86e5236/ios
+- https://support.google.com/chrome/answer/9658361?co=GENIE.Platform%3DiOS&hl=ja
+
+Physical iPhone/Android Home Screen installation, actual launcher label truncation and standalone sensor permissions remain unverified. A small-viewport desktop browser check is a layout check only. Network access is needed to open/update the app; offline operation is not offered.
