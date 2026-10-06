@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#f3f7f4">
+    <meta name="description" content="eFactory Steering Angle Measureの使い方と測定の仕組み。">
+    <link rel="icon" type="image/png" sizes="32x32" href="%BASE_URL%icons/favicon-32.png">
+    <link rel="stylesheet" href="/src/ui/guide.css">
+    <title>eFactory Steering Angle Measure | 使い方・仕組み</title>
+  </head>
+  <body class="guide-page">
+    <header class="guide-header">
+      <a class="guide-back" href="%BASE_URL%">← 測定画面に戻る</a>
+      <a class="guide-brand" href="https://efactorysuzuka.wixsite.com/efactory" target="_blank" rel="noopener noreferrer" aria-label="eFactoryホームページ（別タブで開く）">
+        <img src="%BASE_URL%efactory-e-icon.png" alt="" width="32" height="32">
+        <span>eFactory</span>
+      </a>
+    </header>
+
+    <main class="guide-main">
+      <section class="guide-hero" aria-labelledby="page-title">
+        <p class="guide-eyebrow">使い方・仕組み <span class="beta-pill">β版</span></p>
+        <h1 id="page-title">eFactory Steering Angle Measure</h1>
+        <p class="hero-lead">バイクのステアリング切れ角を、端末のセンサーだけで測定するWebアプリです。</p>
+        <p class="hero-summary">左右の最大切れ角とLock-to-Lockを自動で記録します。</p>
+        <div class="beta-note">
+          <strong>β版</strong>
+          <p>現在、さまざまな車両・端末で実車検証を進めています。</p>
+          <p class="fine-print">0.1°は表示単位であり、測定精度を保証するものではありません。</p>
+        </div>
+      </section>
+
+      <section class="guide-section steps-section" id="steps" aria-labelledby="steps-title">
+        <p class="section-eyebrow">はじめての方へ</p>
+        <h2 id="steps-title">4 STEPで測定</h2>
+
+        <article class="step-card" id="mount">
+          <div class="step-title"><span>STEP 1</span><h3>端末を固定する</h3></div>
+          <p>端末を、ステアリング操作と一緒に回転する場所へしっかり固定してください。向きは自由です。</p>
+          <p>目安は、ハンドルを左右へ切ったとき、その場所も一緒に回転することです。端末が動かないよう確実に固定してください。</p>
+          <figure class="guide-figure bike-figure">
+            <svg class="bike-diagram" viewBox="0 0 360 190" role="img" aria-labelledby="bike-title bike-desc">
+              <title id="bike-title">バイク側面と端末を固定できる場所</title>
+              <desc id="bike-desc">ハンドル、トップブリッジ、フロントフォーク、フロントフェンダーはステアリングと一緒に回るため使用できます。タンクとフレームは使用できません。</desc>
+              <g class="bike-line" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="69" cy="145" r="34" stroke-width="5"/>
+                <circle cx="282" cy="145" r="36" stroke-width="5"/>
+                <circle cx="69" cy="145" r="5" stroke-width="3"/>
+                <circle cx="282" cy="145" r="5" stroke-width="3"/>
+                <path d="M69 145 132 102 192 119 224 101 282 145M132 102l33 43m-33-43 60 17m-27 26h-46m46 0-25 22m25-22 28-44" stroke-width="5"/>
+                <path d="M224 101 251 133M231 98l29 34" stroke-width="5"/>
+                <path d="M245 128q35-13 58 5" stroke-width="7"/>
+                <path d="M203 86l22 4 12 8-14 7-20-5z" stroke-width="4"/>
+                <path d="M196 90l-22-13q-22-7-43 0l-13 8 7 8 37 5 24 10" stroke-width="3"/>
+                <path d="M116 105l-22-1-18 7" stroke-width="4"/>
+                <path d="M216 88l10-16 19-3m-19 3-9-7" stroke-width="4"/>
+              </g>
+              <g class="mount-ok">
+                <circle cx="236" cy="72" r="12"/><text x="236" y="76">1</text>
+                <circle cx="221" cy="99" r="12"/><text x="221" y="103">2</text>
+                <circle cx="249" cy="127" r="12"/><text x="249" y="131">3</text>
+                <circle cx="283" cy="128" r="12"/><text x="283" y="132">4</text>
+              </g>
+              <g class="mount-no" stroke-linecap="round" stroke-width="4">
+                <path d="M151 81l12 12m0-12-12 12"/>
+                <path d="M151 126l12 12m0-12-12 12"/>
+              </g>
+            </svg>
+            <figcaption>ステアリングと一緒に回る場所ならOK</figcaption>
+          </figure>
+          <ul class="mount-list" aria-label="固定場所の例">
+            <li><span>1</span>ハンドル</li>
+            <li><span>2</span>トップブリッジ</li>
+            <li><span>3</span>フロントフォーク</li>
+            <li><span>4</span>フロントフェンダー</li>
+          </ul>
+          <div class="mount-boundary">
+            <strong>固定できない場所</strong>
+            <span>× タンク</span><span>× フレーム</span><span>× シート</span>
+          </div>
+          <div class="orientation-note">
+            <svg viewBox="0 0 104 38" role="img" aria-label="縦向き、横向き、斜め向きの端末">
+              <g fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="5" y="6" width="15" height="26" rx="3"/>
+                <rect x="35" y="11" width="26" height="15" rx="3"/>
+                <g transform="rotate(-35 84 19)"><rect x="76" y="6" width="15" height="26" rx="3"/></g>
+              </g>
+              <g fill="currentColor"><circle cx="12.5" cy="28" r="1"/><circle cx="48" cy="23" r="1"/><circle cx="83.5" cy="28" r="1"/></g>
+            </svg>
+            <span>縦・横・斜め、向きは自由</span>
+          </div>
+        </article>
+
+        <article class="step-card" id="center">
+          <div class="step-title"><span>STEP 2</span><h3>中央を記録する</h3></div>
+          <p>ハンドルを中央にして静止し、「中央を記録」を押します。</p>
+          <figure class="guide-figure center-figure">
+            <svg viewBox="0 0 320 118" role="img" aria-labelledby="center-title center-desc">
+              <title id="center-title">前輪をまっすぐにして中央を記録</title>
+              <desc id="center-desc">まっすぐな前輪とハンドルを静止させ、中央を記録ボタンを押します。</desc>
+              <path d="M160 8v41" class="wheel-line"/>
+              <path d="M147 22h26m-26 9h26" class="wheel-mark"/>
+              <circle cx="160" cy="51" r="7" class="center-dot"/>
+              <path d="M160 62v12m-5-5 5 5 5-5" class="center-arrow"/>
+              <rect x="86" y="81" width="148" height="29" rx="8" class="center-button"/>
+              <text x="160" y="101">中央を記録</text>
+            </svg>
+            <figcaption>前輪をまっすぐにして、動かさずに記録</figcaption>
+          </figure>
+        </article>
+
+        <article class="step-card" id="axis">
+          <div class="step-title"><span>STEP 3</span><h3>左右へゆっくり動かす</h3></div>
+          <p>ハンドルを左右へゆっくり動かしてください。</p>
+          <p>この動きからアプリが実際のステアリング回転軸を推定します。軸が決まると、自動的に測定へ進みます。</p>
+          <figure class="guide-figure axis-figure">
+            <svg viewBox="0 0 320 140" role="img" aria-labelledby="axis-title axis-desc">
+              <title id="axis-title">左右のハンドル操作から回転軸を見つける</title>
+              <desc id="axis-desc">斜めの回転軸を基準に、ハンドルを左右へ動かします。</desc>
+              <defs>
+                <marker id="axis-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                  <path d="M0 0 10 5 0 10z" class="arrow-head"/>
+                </marker>
+              </defs>
+              <path d="M157 14 133 126" class="axis-line"/>
+              <text x="176" y="37">推定する回転軸</text>
+              <path d="M77 83h166m-150-9v18m134-18v18" class="handlebar"/>
+              <circle cx="160" cy="83" r="8" class="axis-hub"/>
+              <path d="M113 56a45 38 0 0 0-15 54" class="turn-left" marker-end="url(#axis-arrow)"/>
+              <path d="M207 110a45 38 0 0 0 15-54" class="turn-right" marker-end="url(#axis-arrow)"/>
+              <text x="71" y="130">左</text><text x="239" y="130">右</text>
+            </svg>
+            <figcaption>左右へ動かすことで、その車両の回転軸を調べます</figcaption>
+          </figure>
+        </article>
+
+        <article class="step-card" id="max">
+          <div class="step-title"><span>STEP 4</span><h3>いっぱいまで切って保持する</h3></div>
+          <p>左右それぞれ、いっぱいまで切って保持します。0.7秒安定すると最大切れ角を自動記録します。</p>
+          <p>さらに大きく切れた場合も、もう一度0.7秒安定するとMAXを自動更新します。</p>
+          <figure class="angle-example" aria-label="左右の最大切れ角からLock-to-Lockを計算する例">
+            <div><span>LEFT MAX</span><strong>−34.8°</strong></div>
+            <div><span>RIGHT MAX</span><strong>＋35.2°</strong></div>
+            <div class="angle-total"><span>左右の最大値を合計</span><strong>Lock-to-Lock　70.0°</strong></div>
+          </figure>
+          <p class="step-tip">一瞬だけ出たピークを記録せず、安定した状態が続いた角度をMAXにします。</p>
+        </article>
+      </section>
+
+      <section class="guide-section" id="how-it-works" aria-labelledby="how-title">
+        <p class="section-eyebrow">測定のしくみ</p>
+        <h2 id="how-title">端末の傾きを測っているだけではありません</h2>
+        <p>一般的な角度計のように、端末の向きをそのままステアリング角としているわけではありません。最初にハンドルを左右へ動かしたときの3次元の動きから、その車両のステアリング回転軸を推定します。</p>
+        <p>測定中は、推定した軸まわりの回転成分をステアリング角として計算します。そのため、端末の取付方向を縦・横・斜めに合わせる必要はありません。</p>
+        <p>端末をハンドルそのものに固定する必要もありません。トップブリッジ、フロントフォーク、フロントフェンダーなど、ステアリングと一緒に回転する場所で測定できます。</p>
+        <div class="comparison" aria-label="一般的な角度計とeFactory Steering Angle Measureの比較">
+          <div class="compare-box">
+            <h3>一般的な角度計</h3>
+            <div class="compare-flow"><span>端末の向き</span><b aria-hidden="true">↓</b><strong>そのまま角度として読む</strong></div>
+          </div>
+          <div class="compare-box compare-efactory">
+            <h3>eFactory Steering Angle Measure</h3>
+            <div class="compare-flow"><span>左右へ動かした3次元の動き</span><b aria-hidden="true">↓</b><span>ステアリング回転軸を推定</span><b aria-hidden="true">↓</b><strong>軸まわりの回転を測定</strong></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="guide-section" aria-labelledby="axis-meaning-title">
+        <h2 id="axis-meaning-title">回転軸を調べる理由</h2>
+        <p>バイクのステアリング軸は、端末の画面に対してまっすぐ上下とは限りません。そこで、最初の左右操作から実際にどの軸を中心に回っているかを調べ、その軸を基準に測ります。取付方向を自由にできるのは、このためです。</p>
+      </section>
+
+      <section class="guide-section" aria-labelledby="quality-title">
+        <p class="section-eyebrow">測定状態も確認</p>
+        <h2 id="quality-title">測るだけでなく、測定状態も監視</h2>
+        <p>最初に推定したステアリング回転軸を基準に、測定中も動きを確認します。軸から外れる動きや、車体の揺れなどが大きくないかを監視しています。</p>
+        <ol class="quality-steps">
+          <li><strong>正常</strong><span>角度を表示し、安定したMAXを記録します。</span></li>
+          <li><strong>少し不安定</strong><span>角度表示は続けながら、MAXの記録だけを一時停止します。安定すると自動で再開します。</span></li>
+          <li><strong>基準が大きくずれた可能性</strong><span>誤った数値を記録せず、測定を止めて中央の再記録を案内します。</span></li>
+        </ol>
+        <p class="quality-note">一瞬だけの揺れでMAXを決めないよう、安定が0.7秒続いた角度を記録します。</p>
+      </section>
+
+      <section class="guide-section" aria-labelledby="spec-title">
+        <p class="section-eyebrow">基本仕様</p>
+        <h2 id="spec-title">測定について</h2>
+        <dl class="spec-list">
+          <div><dt>測定</dt><dd>LEFT / RIGHT の切れ角</dd></div>
+          <div><dt>最大値</dt><dd>0.7秒安定後に自動記録・更新</dd></div>
+          <div><dt>Lock-to-Lock</dt><dd>左右MAXから自動計算</dd></div>
+          <div><dt>表示</dt><dd>0.1°単位表示</dd></div>
+          <div><dt>取付方向</dt><dd>自由</dd></div>
+          <div><dt>取付場所</dt><dd>ステアリング操作と一緒に回転する場所</dd></div>
+          <div><dt>測定可能な例</dt><dd>ハンドル / トップブリッジ / フロントフォーク / フロントフェンダー</dd></div>
+          <div><dt>軸の設定</dt><dd>最初のハンドル操作から自動推定</dd></div>
+          <div><dt>品質監視</dt><dd>軸から外れる動きや車体の揺れなどを確認</dd></div>
+          <div><dt>インストール</dt><dd>不要。よく使う場合はホーム画面へ追加できます。</dd></div>
+          <div><dt>対応環境</dt><dd>iPhone / Android の対応ブラウザ</dd></div>
+          <div><dt>現在</dt><dd>β版</dd></div>
+        </dl>
+      </section>
+
+      <details class="technical-details">
+        <summary>もう少し詳しく仕組みを見る</summary>
+        <div class="technical-body">
+          <p>端末の向きをそのままステアリング角としているわけではありません。中央を記録したあと、ハンドルを左右へ動かし、3軸ジャイロがとらえた3次元の回転から共通する回転軸を推定します。</p>
+          <ol>
+            <li>中央位置を記録する</li>
+            <li>左右へ動かしたときの3次元の姿勢変化を取得する</li>
+            <li>複数の回転に共通するステアリング回転軸を推定する</li>
+            <li>重力の向きを使い、軸の正方向を決める</li>
+            <li>測定中の回転をSwing / Twistに分け、推定軸まわりの成分から左右角を算出する</li>
+          </ol>
+          <p>姿勢の計算ではQuaternionを使い、回転軸の推定にはPCA（複数の動きに共通する方向を探す方法）を使います。測定中も、推定軸・軸以外の回転・重力との整合性を監視します。不安定なときはMAXの記録を止め、安定してから再開します。MAXは連続して700ms安定した状態で確定し、より大きな角度で再び安定すると更新します。</p>
+        </div>
+      </details>
+
+      <section class="beta-feedback" aria-labelledby="beta-feedback-title">
+        <p class="section-eyebrow">ご協力のお願い</p>
+        <h2 id="beta-feedback-title">β版へのご協力</h2>
+        <p>現在、さまざまな車両・端末で測定結果と再現性を確認しています。</p>
+        <p>「測定値がおかしい」「操作が分かりにくい」「この車両では測れなかった」などがあれば、<a href="https://efactorysuzuka.wixsite.com/efactory" target="_blank" rel="noopener noreferrer">eFactoryまでお知らせください</a>。</p>
+        <p>多くの実車で問題なく使用できることを確認した段階で、正式版へ移行予定です。</p>
+      </section>
+    </main>
+
+    <footer class="guide-footer">
+      <a class="guide-footer-brand" href="https://efactorysuzuka.wixsite.com/efactory" target="_blank" rel="noopener noreferrer">
+        <img src="%BASE_URL%efactory-wordmark-black.png" alt="eFactory" width="150">
+      </a>
+      <span>Developed by eFactory</span>
+      <a class="guide-back footer-back" href="%BASE_URL%">← 測定画面に戻る</a>
+    </footer>
+  </body>
+</html>
