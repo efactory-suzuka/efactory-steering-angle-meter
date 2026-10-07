@@ -33,13 +33,8 @@ a:focus-visible{outline:3px solid #d98d48;outline-offset:3px;border-radius:4px}
 .guide-figure figcaption{margin-top:4px;color:#286e65;font-size:13px;font-weight:700}
 .bike-figure{background:#fff;border:1px solid #e0e9e4}
 .bike-overview{display:block;width:100%;height:auto;max-width:500px;margin:0 auto 12px}
-.guide-figure .mount-photo{max-width:540px;border:1px solid #e0e9e4;border-radius:8px;background:#fff}
-.mount-leaders{fill:#fff;stroke:#17685f;stroke-width:5;stroke-linecap:round}
-.mount-ok circle{fill:#17685f;stroke:#fff;stroke-width:4}
-.mount-ok text{fill:#fff;font-size:36px;font-weight:800;text-anchor:middle;dominant-baseline:central}
 .mount-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px 10px;margin:12px 0 0;padding:0;list-style:none}
-.mount-list li{display:flex;align-items:center;gap:7px;min-width:0;font-size:14px;font-weight:600}
-.mount-list li span{display:grid;place-items:center;flex:none;width:22px;height:22px;border-radius:50%;background:#deeee8;color:#145c53;font-size:11px;font-weight:800}
+.mount-list li{margin-left:18px;min-width:0;list-style:disc;font-size:14px;font-weight:600}
 .mount-boundary{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;margin-top:13px;padding:11px 12px;border-radius:9px;background:#fbf0ec;color:#874431;font-size:13px}
 .mount-boundary strong{width:100%;font-size:13px}
 .orientation-note{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px;color:#286e65;font-size:14px;font-weight:700}
