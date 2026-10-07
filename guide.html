@@ -40,31 +40,23 @@
           <p>端末を、ステアリング操作と一緒に回転する場所へしっかり固定してください。向きは自由です。</p>
           <p>目安は、ハンドルを左右へ切ったとき、その場所も一緒に回転することです。端末が動かないよう確実に固定してください。</p>
           <figure class="guide-figure bike-figure">
-            <svg class="bike-diagram" viewBox="0 0 360 190" role="img" aria-labelledby="bike-title bike-desc">
-              <title id="bike-title">バイク側面と端末を固定できる場所</title>
-              <desc id="bike-desc">ハンドル、トップブリッジ、フロントフォーク、フロントフェンダーはステアリングと一緒に回るため使用できます。タンクとフレームは使用できません。</desc>
-              <g class="bike-line" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="69" cy="145" r="34" stroke-width="5"/>
-                <circle cx="282" cy="145" r="36" stroke-width="5"/>
-                <circle cx="69" cy="145" r="5" stroke-width="3"/>
-                <circle cx="282" cy="145" r="5" stroke-width="3"/>
-                <path d="M69 145 132 102 192 119 224 101 282 145M132 102l33 43m-33-43 60 17m-27 26h-46m46 0-25 22m25-22 28-44" stroke-width="5"/>
-                <path d="M224 101 251 133M231 98l29 34" stroke-width="5"/>
-                <path d="M245 128q35-13 58 5" stroke-width="7"/>
-                <path d="M203 86l22 4 12 8-14 7-20-5z" stroke-width="4"/>
-                <path d="M196 90l-22-13q-22-7-43 0l-13 8 7 8 37 5 24 10" stroke-width="3"/>
-                <path d="M116 105l-22-1-18 7" stroke-width="4"/>
-                <path d="M216 88l10-16 19-3m-19 3-9-7" stroke-width="4"/>
+            <img class="bike-overview" src="%BASE_URL%guide-motorcycle.png" alt="提供写真をもとにした、右向きのバイク側面" width="1536" height="1024">
+            <p class="diagram-heading">前側を拡大：固定できる場所の例</p>
+            <svg class="mount-photo" viewBox="0 0 640 580" role="img" aria-labelledby="bike-title bike-desc">
+              <title id="bike-title">写真で見る、ステアリングと一緒に回る部品</title>
+              <desc id="bike-desc">1はハンドル、2はトップブリッジ、3はフロントフォーク、4はフロントフェンダーを示します。端末を固定できる場所の例です。</desc>
+              <image href="%BASE_URL%guide-motorcycle.png" x="-850" y="-30" width="1536" height="1024"/>
+              <g class="mount-leaders">
+                <path d="M90 67 L130 107"/><circle cx="130" cy="107" r="7"/>
+                <path d="M230 235 L260 175"/><circle cx="260" cy="175" r="7"/>
+                <path d="M330 430 L380 370"/><circle cx="380" cy="370" r="7"/>
+                <path d="M565 245 L530 315"/><circle cx="530" cy="315" r="7"/>
               </g>
               <g class="mount-ok">
-                <circle cx="236" cy="72" r="12"/><text x="236" y="76">1</text>
-                <circle cx="221" cy="99" r="12"/><text x="221" y="103">2</text>
-                <circle cx="249" cy="127" r="12"/><text x="249" y="131">3</text>
-                <circle cx="283" cy="128" r="12"/><text x="283" y="132">4</text>
-              </g>
-              <g class="mount-no" stroke-linecap="round" stroke-width="4">
-                <path d="M151 81l12 12m0-12-12 12"/>
-                <path d="M151 126l12 12m0-12-12 12"/>
+                <circle cx="90" cy="67" r="30"/><text x="90" y="67">1</text>
+                <circle cx="230" cy="235" r="30"/><text x="230" y="235">2</text>
+                <circle cx="330" cy="430" r="30"/><text x="330" y="430">3</text>
+                <circle cx="565" cy="245" r="30"/><text x="565" y="245">4</text>
               </g>
             </svg>
             <figcaption>ステアリングと一緒に回る場所ならOK</figcaption>
@@ -96,17 +88,26 @@
           <div class="step-title"><span>STEP 2</span><h3>中央を記録する</h3></div>
           <p>ハンドルを中央にして静止し、「中央を記録」を押します。</p>
           <figure class="guide-figure center-figure">
-            <svg viewBox="0 0 320 118" role="img" aria-labelledby="center-title center-desc">
-              <title id="center-title">前輪をまっすぐにして中央を記録</title>
-              <desc id="center-desc">まっすぐな前輪とハンドルを静止させ、中央を記録ボタンを押します。</desc>
-              <path d="M160 8v41" class="wheel-line"/>
-              <path d="M147 22h26m-26 9h26" class="wheel-mark"/>
-              <circle cx="160" cy="51" r="7" class="center-dot"/>
-              <path d="M160 62v12m-5-5 5 5 5-5" class="center-arrow"/>
-              <rect x="86" y="81" width="148" height="29" rx="8" class="center-button"/>
-              <text x="160" y="101">中央を記録</text>
+            <p class="diagram-view">上から見た図</p>
+            <p class="diagram-heading">① 前輪を車体とまっすぐに</p>
+            <svg viewBox="0 0 320 250" role="img" aria-labelledby="center-title center-desc">
+              <title id="center-title">上から見た、前輪と車体がまっすぐな中央位置</title>
+              <desc id="center-desc">前輪を車体の中心線に合わせ、ハンドルを中央にします。その位置で静止して中央を記録ボタンを押します。</desc>
+              <text x="160" y="22" class="diagram-label" text-anchor="middle">前方 ↑</text>
+              <path d="M143 167 Q160 154 177 167 L188 232 Q160 243 132 232Z" class="diagram-body"/>
+              <path d="M160 34 V240" class="bike-centerline"/>
+              <rect x="149" y="45" width="22" height="65" rx="9" class="diagram-tire"/>
+              <path d="M160 110 V142 M65 158 L94 140 H226 L255 158" class="diagram-handlebar"/>
+              <circle cx="160" cy="140" r="7" class="diagram-hub"/>
+              <path d="M180 73 H202" class="diagram-leader"/>
+              <text x="208" y="79" class="diagram-label">前輪</text>
+              <text x="160" y="211" class="diagram-label" text-anchor="middle">車体</text>
+              <path d="M125 229 H97" class="diagram-leader"/>
+              <text x="92" y="226" class="diagram-small" text-anchor="end">車体の</text>
+              <text x="92" y="243" class="diagram-small" text-anchor="end">中心線</text>
             </svg>
-            <figcaption>前輪をまっすぐにして、動かさずに記録</figcaption>
+            <div class="record-example"><p class="diagram-heading">② 動かさずにボタンを押す</p><span class="record-button-example">中央を記録</span></div>
+            <figcaption>この位置を、左右の角度の基準にします</figcaption>
           </figure>
         </article>
 
@@ -115,23 +116,33 @@
           <p>ハンドルを左右へゆっくり動かしてください。</p>
           <p>この動きからアプリが実際のステアリング回転軸を推定します。軸が決まると、自動的に測定へ進みます。</p>
           <figure class="guide-figure axis-figure">
-            <svg viewBox="0 0 320 140" role="img" aria-labelledby="axis-title axis-desc">
-              <title id="axis-title">左右のハンドル操作から回転軸を見つける</title>
-              <desc id="axis-desc">斜めの回転軸を基準に、ハンドルを左右へ動かします。</desc>
+            <p class="diagram-heading">上から見たハンドルと前輪の動き</p>
+            <svg viewBox="0 0 320 290" role="img" aria-labelledby="axis-title axis-desc">
+              <title id="axis-title">同じ回転中心を通るハンドルと前輪の左右操作</title>
+              <desc id="axis-desc">車体は動かさず、ハンドルと前輪を同じ回転中心のまわりで左右へゆっくり動かします。丸印は斜めのステアリング回転軸を上から見た位置です。</desc>
               <defs>
-                <marker id="axis-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-                  <path d="M0 0 10 5 0 10z" class="arrow-head"/>
-                </marker>
+                <g id="steering-front">
+                  <rect x="151" y="57" width="18" height="60" rx="7"/>
+                  <path d="M160 117 V150 M66 169 L96 150 H224 L254 169" fill="none"/>
+                </g>
+                <marker id="turn-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" fill="#286e65"/></marker>
               </defs>
-              <path d="M157 14 133 126" class="axis-line"/>
-              <text x="176" y="37">推定する回転軸</text>
-              <path d="M77 83h166m-150-9v18m134-18v18" class="handlebar"/>
-              <circle cx="160" cy="83" r="8" class="axis-hub"/>
-              <path d="M113 56a45 38 0 0 0-15 54" class="turn-left" marker-end="url(#axis-arrow)"/>
-              <path d="M207 110a45 38 0 0 0 15-54" class="turn-right" marker-end="url(#axis-arrow)"/>
-              <text x="71" y="130">左</text><text x="239" y="130">右</text>
+              <text x="160" y="22" class="diagram-label" text-anchor="middle">前方 ↑</text>
+              <path d="M143 181 Q160 169 177 181 L188 246 Q160 257 132 246Z" class="diagram-body"/>
+              <path d="M160 35 V257" class="bike-centerline"/>
+              <use href="#steering-front" class="steering-center"/>
+              <use href="#steering-front" transform="rotate(-30 160 150)" class="steering-left"/>
+              <use href="#steering-front" transform="rotate(30 160 150)" class="steering-right"/>
+              <path d="M95 54 A116 116 0 0 1 225 54" class="steering-arc" marker-start="url(#turn-arrow)" marker-end="url(#turn-arrow)"/>
+              <text x="70" y="67" class="diagram-label left-label" text-anchor="middle">左</text>
+              <text x="250" y="67" class="diagram-label right-label" text-anchor="middle">右</text>
+              <circle cx="160" cy="150" r="8" class="diagram-hub"/>
+              <path d="M171 150 H220 L237 220" class="diagram-leader"/>
+              <text x="242" y="239" class="diagram-small" text-anchor="middle">回転中心</text>
+              <text x="160" y="222" class="diagram-label" text-anchor="middle">車体</text>
+              <text x="160" y="282" class="diagram-small" text-anchor="middle">車体は動かさず、ハンドルだけ左右へ</text>
             </svg>
-            <figcaption>左右へ動かすことで、その車両の回転軸を調べます</figcaption>
+            <figcaption>丸印＝ステアリング回転軸を上から見た位置</figcaption>
           </figure>
         </article>
 
@@ -182,40 +193,6 @@
         </ol>
         <p class="quality-note">一瞬だけの揺れでMAXを決めないよう、安定が0.7秒続いた角度を記録します。</p>
       </section>
-
-      <section class="guide-section" aria-labelledby="spec-title">
-        <p class="section-eyebrow">基本仕様</p>
-        <h2 id="spec-title">測定について</h2>
-        <dl class="spec-list">
-          <div><dt>測定</dt><dd>LEFT / RIGHT の切れ角</dd></div>
-          <div><dt>最大値</dt><dd>0.7秒安定後に自動記録・更新</dd></div>
-          <div><dt>Lock-to-Lock</dt><dd>左右MAXから自動計算</dd></div>
-          <div><dt>表示</dt><dd>0.1°単位表示</dd></div>
-          <div><dt>取付方向</dt><dd>自由</dd></div>
-          <div><dt>取付場所</dt><dd>ステアリング操作と一緒に回転する場所</dd></div>
-          <div><dt>測定可能な例</dt><dd>ハンドル / トップブリッジ / フロントフォーク / フロントフェンダー</dd></div>
-          <div><dt>軸の設定</dt><dd>最初のハンドル操作から自動推定</dd></div>
-          <div><dt>品質監視</dt><dd>軸から外れる動きや車体の揺れなどを確認</dd></div>
-          <div><dt>インストール</dt><dd>不要。よく使う場合はホーム画面へ追加できます。</dd></div>
-          <div><dt>対応環境</dt><dd>iPhone / Android の対応ブラウザ</dd></div>
-          <div><dt>現在</dt><dd>β版</dd></div>
-        </dl>
-      </section>
-
-      <details class="technical-details">
-        <summary>もう少し詳しく仕組みを見る</summary>
-        <div class="technical-body">
-          <p>端末の向きをそのままステアリング角としているわけではありません。中央を記録したあと、ハンドルを左右へ動かし、3軸ジャイロがとらえた3次元の回転から共通する回転軸を推定します。</p>
-          <ol>
-            <li>中央位置を記録する</li>
-            <li>左右へ動かしたときの3次元の姿勢変化を取得する</li>
-            <li>複数の回転に共通するステアリング回転軸を推定する</li>
-            <li>重力の向きを使い、軸の正方向を決める</li>
-            <li>測定中の回転をSwing / Twistに分け、推定軸まわりの成分から左右角を算出する</li>
-          </ol>
-          <p>姿勢の計算ではQuaternionを使い、回転軸の推定にはPCA（複数の動きに共通する方向を探す方法）を使います。測定中も、推定軸・軸以外の回転・重力との整合性を監視します。不安定なときはMAXの記録を止め、安定してから再開します。MAXは連続して700ms安定した状態で確定し、より大きな角度で再び安定すると更新します。</p>
-        </div>
-      </details>
 
       <section class="beta-feedback" aria-labelledby="beta-feedback-title">
         <p class="section-eyebrow">ご協力のお願い</p>

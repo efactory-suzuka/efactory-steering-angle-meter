@@ -64,16 +64,6 @@ describe('public guide page',()=>{
     }
   });
 
-  it('keeps specialist terms inside the collapsed technical section',()=>{
-    const summary=guide.indexOf('<summary>もう少し詳しく仕組みを見る</summary>');
-    const detailsEnd=guide.indexOf('</details>',summary);
-    expect(summary).toBeGreaterThan(0);
-    expect(detailsEnd).toBeGreaterThan(summary);
-    for(const term of ['3軸ジャイロ','Quaternion','PCA','Swing / Twist','700ms']){
-      expect(guide.slice(summary,detailsEnd)).toContain(term);
-    }
-  });
-
   it('states beta status and display resolution without an accuracy claim',()=>{
     expect(guide).toContain('β版へのご協力');
     expect(guide).toContain('0.1°は表示単位であり、測定精度を保証するものではありません。');
