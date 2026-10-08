@@ -24,6 +24,7 @@
         <h1 id="page-title">eFactory Steering Angle Measure</h1>
         <p class="hero-lead">バイクのステアリング切れ角を、端末のセンサーだけで測定するWebアプリです。</p>
         <p class="hero-summary">左右の最大切れ角とLock-to-Lockを自動で記録します。</p>
+        <p><a href="#privacy">利用回数の集計・外部への情報送信について</a></p>
         <div class="beta-note">
           <strong>β版</strong>
           <p>現在、さまざまな車両・端末で実車検証を進めています。</p>
@@ -199,9 +200,9 @@
         <p>β版の改善のため、eFactoryはページを開いた回数、中央記録を開始した回数、同じ測定で左右両方のMAXを確定して終了した回数を集計します。アクセス回数は延べ回数で、利用者の人数ではありません。</p>
         <p>集計が有効な場合、送信する本文は open・start・success のいずれかだけです。eFactoryが管理するCloudflare Workersで受け取り、D1に日本時間の日付・種類・合計回数だけを保存します。個別の利用履歴は作成せず、集計のためのCookie、端末ID、localStorageは使用しません。</p>
         <p>測定角度、車両情報、GPS、ジャイロ・加速度、Quaternion、診断情報、氏名等は送信しません。センサーデータは端末内で処理します。OS・ブラウザ情報や参照元は集計せず、アプリの送信本文にも含めません。</p>
-        <p>通信に必要なIPアドレスやブラウザの標準HTTPヘッダーはCloudflareのネットワークで処理されますが、WorkerはIP・ブラウザ情報を集計や個別履歴として保存せず、リクエストログとobservabilityを無効にしています。Cloudflareが基盤の運用・セキュリティ目的で行う処理は同社の方針に従います。Google Analyticsや広告向けの解析サービスは使用しません。</p>
+        <p>通信時には、イベント名のほかに、IPアドレス、ブラウザの種類などの標準的な通信情報もCloudflareのネットワークへ届きます。eFactoryの集計処理ではこれらを保存せず、個別のアクセス記録を作る機能も無効にしています。Cloudflareは、サービスの提供・保護や不正利用の防止などのために通信情報を処理します。この基盤処理は同社の方針に従い、日本国外でも行われる場合があります。日本国内だけで処理されることを保証するものではありません。Google Analyticsや広告向けの解析サービスは使用しません。</p>
         <p>送信先はeFactoryの集計システム（処理基盤：Cloudflare, Inc.）、目的はβ版の利用回数の把握と改善です。現在は集計先が未設定のため送信していません。有効化する際はこの案内に実際の送信先URLを掲載します。</p>
-        <p><a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener noreferrer">Cloudflareのプライバシーポリシー</a></p>
+        <p><a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener noreferrer">Cloudflareのプライバシーポリシー</a> · <a href="https://www.cloudflare.com/cloudflare-customer-dpa/" target="_blank" rel="noopener noreferrer">データ処理に関する契約条件</a></p>
       </section>
 
       <section class="beta-feedback" aria-labelledby="beta-feedback-title">

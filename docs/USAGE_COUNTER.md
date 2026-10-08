@@ -2,7 +2,7 @@
 
 GitHub Pagesの測定アプリと、独立した `worker/` のCloudflare Workers + D1で構成します。GA4・Google tag・同意UI・同意保存・解析設定は除去しました。測定／センサー／軸校正／700ms保持／MAX／Quality／診断の既存実装は変更していません。
 
-**初期状態は通信無効です。** Cloudflareの認証と実URLが未設定です。Worker受信テスト、下記の法令・公表確認、guideの送信先URL掲載が完了するまで、本番の `VITE_COUNTER_ENDPOINT` は空にしてください。
+**本番アプリの通信はまだ無効です。** 専用D1は作成し、実際のdatabase_idを設定しました。CLI認証・Worker公開・受信確認と法令上の確認が残っています。Worker受信テスト、下記の法令・公表確認、guideの送信先URL掲載が完了するまで、本番の `VITE_COUNTER_ENDPOINT` は空にしてください。現在の作業証跡は [本番設定の確認記録](COUNTER_PRODUCTION_STATUS.md) を参照してください。
 
 ## 保存するもの・イベント
 
@@ -48,6 +48,8 @@ pnpm exec wrangler d1 create efactory-usage
 ```
 
 作成結果のdatabase_idを `worker/wrangler.jsonc` のゼロの仮IDと置き換えます。同名のDBが既にある場合は新規作成せず、そのDBを選びます。
+
+2026-10-09にDashboardで `efactory-usage` を作成し、初期スキーマを適用しました。IDは `a1307ce3-28e3-4e08-bc61-2bbdcd8758dd` です。初期migrationは `CREATE TABLE IF NOT EXISTS` とし、Dashboardで適用済みのDBを削除せずCLI管理へ引き継げるようにしています。これは既存テーブルの列を修正・検証する処理ではありません。引き継ぎ前に `PRAGMA table_info(daily_counts)` と `sqlite_master.sql` を確認し、初期スキーマと一致することを確かめてください。
 
 ```sh
 pnpm migrate:remote
@@ -127,7 +129,11 @@ Cookieを使わず個別履歴を保存しないことだけで、すべての�
 - **対象地域**：日本以外の利用者も対象とする場合は、その地域のプライバシー・端末情報利用規制を別途確認してください。
 - **実際の公表**：guideの静的説明は公表文案です。実送信先URL、運営主体、受信情報の範囲、Cloudflareの基盤処理が契約・運用実態と一致していること、guideへの既存リンクで必要な容易性を満たすことを確認してください。必要な義務を満たせない場合は通信を有効化しません。
 
-確認資料：[総務省の外部送信規律に関する案内](https://www.soumu.go.jp/main_sosiki/joho_tsusin/d_syohi/gaibusoushin.html)、[個人情報保護委員会の法令・ガイドライン](https://www.ppc.go.jp/personalinfo/legal/)、[Cloudflare Privacy Policy](https://www.cloudflare.com/privacypolicy/)、[Cloudflare DPA](https://www.cloudflare.com/cloudflare-customer-dpa/)。この環境では公式サイトの取得が制限されており、現行資料の確認や法的適用の確定は未実施です。運営者または専門家による確認が有効化前の残作業です。
+確認資料：[総務省の外部送信規律に関する案内](https://www.soumu.go.jp/main_sosiki/joho_tsusin/d_syohi/gaibusoushin.html)、[電気通信事業法27条の12・164条](https://laws.e-gov.go.jp/law/359AC0000000086)、[施行規則22条の2の27～29](https://laws.e-gov.go.jp/law/360M50001000025)、[個人情報保護委員会の通則編](https://www.ppc.go.jp/personalinfo/legal/guidelines_tsusoku/)、[外国への委託についてのFAQ Q12-1](https://www.ppc.go.jp/all_faq_index/faq1-q12-1/)、[Cloudflare Privacy Policy](https://www.cloudflare.com/privacypolicy/)、[Cloudflare DPA](https://www.cloudflare.com/cloudflare-customer-dpa/)、[Self-Serve Subscription Agreement](https://www.cloudflare.com/terms/)。
+
+2026-10-09にe-Gov公式APIの現行条文、個人情報保護委員会、Cloudflareの公式資料を確認しました（総務省の案内ページは取得不可）。外部送信規律はCookieの有無だけで決まらず、対象サービスでは送信情報・取扱者の名称・目的を公表等する規定があります。施行規則は容易に到達できるページでの公表も規定しています。guide冒頭に集計説明へのリンクを設けました。これは本サービスの適用判定や公表方法の十分性を法的に確定したものではありません。
+
+D1の日別合計と、CloudflareによるIP等の通信基盤処理は区別します。通則編の統計情報の説明だけを根拠に、通信全体が個人情報保護法の対象外とはしません。Cloudflareは国外での処理を説明しています。公開DPA v6.4（2026-04-03発効）は適用法令の対象となる処理を定め、SSA 6.1はEU/UK・CCPAのPersonal Dataを条件にDPAを参照しています。公開文書が存在することだけで、このアカウントの日本法上必要な委託・越境移転の措置が確認済みとは扱いません。対象サービスの適用、公表の到達性、実際の契約・DPAの適用範囲と国外処理の根拠、海外利用者を対象にするかの確認が残っています。確認できるまでアプリ送信は有効化しません。
 
 ## 開発検証
 
