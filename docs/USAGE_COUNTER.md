@@ -2,7 +2,7 @@
 
 GitHub Pagesの測定アプリと、独立した `worker/` のCloudflare Workers + D1で構成します。GA4・Google tag・同意UI・同意保存・解析設定は除去しました。測定／センサー／軸校正／700ms保持／MAX／Quality／診断の既存実装は変更していません。
 
-**本番アプリの通信はまだ無効です。** 専用D1は作成し、実際のdatabase_idを設定しました。CLI認証・Worker公開・受信確認と法令上の確認が残っています。Worker受信テスト、下記の法令・公表確認、guideの送信先URL掲載が完了するまで、本番の `VITE_COUNTER_ENDPOINT` は空にしてください。現在の作業証跡は [本番設定の確認記録](COUNTER_PRODUCTION_STATUS.md) を参照してください。
+**本番アプリの通信はまだ無効です。** 専用D1・CLI認証・remote migration・Worker公開・本番3イベントの受信確認が完了しました。受付は `https://efactory-usage-counter.efactory-suzuka.workers.dev/count` です。下記の法令・公表確認が完了するまで、本番の `VITE_COUNTER_ENDPOINT` は空にしてください。現在の作業証跡は [本番設定の確認記録](COUNTER_PRODUCTION_STATUS.md) を参照してください。
 
 ## 保存するもの・イベント
 
@@ -135,6 +135,8 @@ Cookieを使わず個別履歴を保存しないことだけで、すべての�
 
 D1の日別合計と、CloudflareによるIP等の通信基盤処理は区別します。通則編の統計情報の説明だけを根拠に、通信全体が個人情報保護法の対象外とはしません。Cloudflareは国外での処理を説明しています。公開DPA v6.4（2026-04-03発効）は適用法令の対象となる処理を定め、SSA 6.1はEU/UK・CCPAのPersonal Dataを条件にDPAを参照しています。公開文書が存在することだけで、このアカウントの日本法上必要な委託・越境移転の措置が確認済みとは扱いません。対象サービスの適用、公表の到達性、実際の契約・DPAの適用範囲と国外処理の根拠、海外利用者を対象にするかの確認が残っています。確認できるまでアプリ送信は有効化しません。
 
+追加で[CloudflareのAPPI説明](https://www.cloudflare.com/trust-hub/appi/)を確認。同社はDPAがSSA／Enterprise Agreementへ組み込まれ、日本からの越境移転に相当措置を提供すると説明しています。ただしページは旧第24条の番号を使用しており、このアカウントへ適用される現行契約の個別確認とは分けます。[個人情報保護委員会FAQ Q8-3](https://www.ppc.go.jp/all_faq_index/faq1-q8-3/)では、個人関連情報の提供一般について同意が必要なのではなく、受領者が個人データとして取得することが想定される場合に限るとされています。IPが届くことだけで同意必須とも断定しません。今回の構成に個人識別・他データとの突合はありませんが、Cloudflare側の基盤処理の契約上の位置付けは確認を残します。
+
 ## 開発検証
 
 ```sh
@@ -155,4 +157,4 @@ Browserテストは全通信を遮断／モックし、テストの受付URLに�
 
 GitHub Actionsは既存測定テスト、Worker/D1テスト、モックURLでのブラウザテスト、本番Variableでの最終ビルド、Pagesデプロイの順です。Cloudflareへの自動デプロイや認証は追加していません。
 
-引き継ぎ時の検証は、アプリ528件（既存495＋追加33）、Worker34件、ブラウザ11件が成功しています。2026-10-09の再検証では、ローカルのアプリ528件・ブラウザ11件・strict・build・Worker dry-runが成功しました。WindowsではOSのアプリケーション制御により実Workers/D1テスト3件が起動できなかったため、[GitHub Actions 37856118584](https://github.com/efactory-suzuka/efactory-steering-angle-meter/actions/runs/37856118584) でWorker全34件を含む全検証とPages公開の成功を確認しました。専用D1と初期スキーマは作成済みです。Cloudflare Worker公開・本番受信確認、法令上の適用・契約確認は残っています。
+引き継ぎ時の検証は、アプリ528件（既存495＋追加33）、Worker34件、ブラウザ11件が成功しています。2026-10-09の再検証では、ローカルのアプリ528件・ブラウザ11件・strict・build・Worker dry-runが成功しました。WindowsではOSのアプリケーション制御により実Workers/D1テスト3件が起動できなかったため、[GitHub Actions 37856118584](https://github.com/efactory-suzuka/efactory-steering-angle-meter/actions/runs/37856118584) でWorker全34件を含む全検証とPages公開の成功を確認しました。専用D1、remote migration、Cloudflare Worker公開と本番受信確認も完了しました。法令上の適用・契約確認とアプリ送信の有効化は残っています。

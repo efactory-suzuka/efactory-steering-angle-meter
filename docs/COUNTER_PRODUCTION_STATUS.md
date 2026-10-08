@@ -9,9 +9,11 @@
 - database_id：`a1307ce3-28e3-4e08-bc61-2bbdcd8758dd`。`COUNTERS` bindingへ設定。
 - Dashboard Consoleで初期SQLを実行し、`PRAGMA table_info(daily_counts)` で `day TEXT / event TEXT / count INTEGER` の3列と複合主キーを確認。
 - 初期migrationを `IF NOT EXISTS` に変更。既にDashboardで作ったテーブルを維持してCLIのmigration管理へ引き継ぐため。既存スキーマが違う場合の自動修正はしない。
-- Worker公開・実際のURL・HTTP受信確認：未完了。URLは推測していない。
+- Worker公開・HTTP受信確認：完了。公開時に発行されたURLは `https://efactory-usage-counter.efactory-suzuka.workers.dev`、受付は末尾 `/count`。Version ID：`0057b127-1779-40f3-b017-28294bcc4914`。
+- 認証はCloudflare公式Wrangler OAuthでAccount Read・Workers Scripts Write・D1 Writeのみを選択し、成功を確認。認証情報はソース／GitHub／Vite変数へ登録していない。
+- remote migration `0001_daily_counts.sql` を適用済み。既存テーブルとデータを削除していない。
 - `VITE_COUNTER_ENDPOINT`：作業開始時は存在しない。受信・法令確認が終わるまで登録しない。
-- 旧 `VITE_GA4_MEASUREMENT_ID` は開始時に残存。削除確認待ち。Google側のデータは変更していない。
+- 旧 `VITE_GA4_MEASUREMENT_ID` は開始時に残存。削除操作でGitHubの本人確認が要求され、メール確認待ち。Google側のデータは変更していない。
 - LINE用Workerなど他サービスは変更していない。
 
 ## 検証
@@ -27,9 +29,9 @@
 
 ## 無料枠・ログ
 
-D1 DashboardはDB数10、読込500万行/日、書込10万行/日、容量5GBのhard limitを表示。Workers plans画面でもFree $0のCurrent planを確認。公式の[Workers料金](https://developers.cloudflare.com/workers/platform/pricing/)と[D1料金](https://developers.cloudflare.com/d1/platform/pricing/)でもFree枠を確認した。有料プランへの変更、支払情報の登録は行っていない。rate bindingの実デプロイ成功は引き続き確認する。
+D1 DashboardはDB数10、読込500万行/日、書込10万行/日、容量5GBのhard limitを表示。Workers plans画面でもFree $0のCurrent planを確認。公式の[Workers料金](https://developers.cloudflare.com/workers/platform/pricing/)と[D1料金](https://developers.cloudflare.com/d1/platform/pricing/)でもFree枠を確認した。有料プランへの変更、支払情報の登録は行っていない。Rate Limit binding `120 requests/60s` を含む実デプロイも成功した。
 
-リポジトリではobservability/logs/traces/invocation_logs/Logpushは無効、preview URLも無効。コードに個別アクセス履歴、Cookie、ID、公開GET集計APIはない。Worker本番設定の照合は公開後に行う。Tail/Live logsを有効にしない。
+リポジトリではobservability/logs/traces/invocation_logs/Logpushは無効、preview URLも無効。コードに個別アクセス履歴、Cookie、ID、公開GET集計APIはない。公開後のWorker SettingsでもLogs・Traces・IssuesがすべてOFF、外部export先なしを確認。Tail/Live logsは有効にしていない。
 
 ## 法令・公表
 
@@ -39,10 +41,25 @@ D1 DashboardはDB数10、読込500万行/日、書込10万行/日、容量5GBの
 
 残る確認は、本サービスへの外部送信規律の適用と公表方法の十分性、実際の契約・DPAの適用範囲と日本法上必要な委託・国外処理の措置、対象地域。契約が締結済みであることを推測していない。詳細資料は [USAGE_COUNTER.md](USAGE_COUNTER.md) の法令確認欄を参照。
 
-## 再開条件
+## 本番受信テスト
 
-CLIの既存認証はない。新しい認証に必要な権限は対象アカウントのWorkers編集、D1編集、Account参照。認証情報はGitHub・Vite変数・チャットに出さない。新しいアクセス権限付与について確認待ち。
+実行時刻：2026-10-09 08:06 JST。直前の `daily_counts` は空。公開originを指定し、本文 `open`、`start`、`success` を各1回だけPOSTした。
 
-残る順序：認証 → remote migration管理へ引き継ぎ → CI全件PASS → Worker公開（ログ無効） → DB初期値記録 → 3イベントと拒否条件の実受信確認 → 公表・適用確認 → 実URLのguide掲載 → `VITE_COUNTER_ENDPOINT`登録 → 本番build/Pages反映 → 公開ページとDB増分の照合。
+| 確認 | 結果 |
+| --- | --- |
+| open / start / success | すべて204、本文なし |
+| Access-Control-Allow-Origin | `https://efactory-suzuka.github.io` と一致 |
+| 別Origin | 403 |
+| 未知イベント | 400 |
+| 128バイト本文 | 413 |
+| GET /count | 405、集計データを返さない |
+| OPTIONS preflight | 204 |
+| Set-Cookie | 全応答でなし |
 
-現時点では本番イベントのテスト送信を行っていないため、テストによる増分は `open=0 / start=0 / success=0`。公開アプリからの実受信・物理センサー操作は未確認。
+テスト後のD1：`2026-10-09 / open=1 / start=1 / success=1`。拒否テストによる増分はなし。これは直接HTTP送信の受信検証であり、公開アプリや物理センサーからの送信を確認したものではない。テスト分は削除せず、合計に各1回含まれる。
+
+## 残る順序
+
+GitHubの本人確認・旧Variable削除 → 公表・適用／契約確認 → `VITE_COUNTER_ENDPOINT`登録 → 有効化状態に合わせたguide更新 → 本番build/Pages反映 → 公開ページとDB増分の照合。
+
+guideへ実際の受付URLを記載したが、アプリ送信が無効である旨は維持。対象地域と実際のDPAの適用状況はユーザーへ確認中。測定ロジック、UI、他Workerは変更していない。
