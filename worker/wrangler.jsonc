@@ -1,6 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "efactory-usage-counter",
+  "account_id": "3d78b5680772e0d3714238c71cefbcf0",
   "main": "src/index.ts",
   "compatibility_date": "2026-07-30",
   "send_metrics": false,

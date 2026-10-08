@@ -28,6 +28,18 @@ D1のアプリ用テーブルは `daily_counts(day, event, count)` だけです�
 
 必要なのはWorkersとD1を利用できるCloudflareアカウントです。ブラウザでのWrangler login、またはWorkers編集・D1編集に限定したAPIトークンとAccount IDを使います。認証情報はローカルの安全な環境変数／Cloudflareの認証機構に設定し、リポジトリやチャットには保存しません。公開用URLやD1のdatabase_idは秘密鍵ではありません。
 
+### Codexクラウドから実施する場合の認証
+
+PCのCloudflare Dashboardへのログインは、CodexクラウドのWranglerには共有されません。公開先のAccount IDは提示されたDashboardのアカウントを設定済みです。既存のLINE用Workerは変更しません。
+
+1. Cloudflareの[API Tokens](https://dash.cloudflare.com/profile/api-tokens)で **Create Token → Create Custom Token** を選びます。
+2. 対象アカウントを限定し、Accountの **Workers Scripts: Edit**、**D1: Edit**、**Account Settings: Read** を許可します。Zone、DNS、Tailログ、他アカウントの権限は不要です。
+3. 作成したトークンをCodexの環境設定にあるSecret **`CLOUDFLARE_API_TOKEN`** に登録します。チャット、GitHubリポジトリ、Vite公開変数には貼りません。トークンの送信先は `api.cloudflare.com` のみです。
+4. 同じ環境設定に **`CLOUDFLARE_ACCOUNT_ID`** が設定されていることを確認し、設定を保存して環境を公開します。環境設定の下書きにはCloudflare API、Worker受信確認、GitHub APIとPages、法令・Cloudflare資料の取得に必要な接続先も登録しています。
+5. 反映後、Codexが認証を再確認し、D1作成／マイグレーション、Worker公開、受信確認、公表文の実URL掲載、GitHub Variable設定、Pages再公開の順で進めます。認証情報の値は表示しません。
+
+環境設定の下書きを保存しただけでは、認証情報の作成や現在の実行環境への反映は完了しません。Cloudflareの料金・API制限やAPIトークンの権限不足があれば、その具体的な応答を確認して対応します。
+
 ```sh
 cd worker
 pnpm install --frozen-lockfile
