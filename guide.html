@@ -193,6 +193,20 @@
         <p class="quality-note">一瞬だけの揺れでMAXを決めないよう、安定が0.7秒続いた角度を記録します。</p>
       </section>
 
+      <section class="guide-section privacy-settings" id="privacy" aria-labelledby="privacy-title">
+        <p class="section-eyebrow">プライバシー・アクセス解析</p>
+        <h2 id="privacy-title">利用状況の解析と設定</h2>
+        <p>β版の利用人数や、測定のどの段階で操作が止まるかを把握し、正式版を改善するため、同意した方のアクセス・操作イベントをGoogle Analytics 4（Google）で解析します。</p>
+        <p>「同意する」を選ぶまではGoogleの分析用タグを読み込まず、解析データを送信しません。「同意しない」を選んでも、すべての測定機能を利用できます。</p>
+        <p>送信するのはページ表示、中央記録・軸校正・測定開始／終了、左右MAXの初回確定、定義済みのエラー種別などです。アプリのバージョン、ブラウザ／ホーム画面での利用、校正・測定に要した時間も含みます。OS・ブラウザ・流入元はGoogle Analyticsの標準機能で集計します。</p>
+        <p>センサーの生データ、Quaternion、時系列ログ・診断JSON、個々の測定角度、GPS、氏名・メールアドレス、問い合わせ内容は送信しません。独自の端末識別IDも作りません。センサーデータは端末内処理のままです。</p>
+        <p>同意後はGoogle AnalyticsがCookie等を利用して、推定ユーザー数、セッション、新規・リピーターなどを集計します。Google標準のCookie識別子を利用し、広告向けデータ利用・リマーケティングは行いません。Cookieの有効期限は最終利用から最大180日です。Googleへの通信に伴いIPアドレスはGoogleに届き、標準機能で地域推定に使われることがあります。本アプリはGPSを取得せず、GA4はIPアドレスを保存しません。</p>
+        <p>同意の選択はこの端末のブラウザ内に保存します。以下からいつでも変更できます。拒否に変更すると以後の送信を止め、本アプリの解析用Cookieを削除します。既に送信済みのデータは取り消せません。ブラウザとホーム画面アプリで保存領域が異なる場合は、それぞれで選択してください。</p>
+        <p><a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Googleのプライバシーポリシー</a> ／ <a href="https://support.google.com/analytics/answer/12017362" target="_blank" rel="noopener noreferrer">GA4のデータとプライバシー</a></p>
+        <p id="privacy-status" role="status" aria-live="polite">解析は無効です。JavaScriptを有効にすると同意設定を変更できます。</p>
+        <div class="consent-actions"><button type="button" data-consent="granted" aria-pressed="false">同意する</button><button type="button" data-consent="denied" aria-pressed="false">同意しない</button></div>
+      </section>
+
       <section class="beta-feedback" aria-labelledby="beta-feedback-title">
         <p class="section-eyebrow">ご協力のお願い</p>
         <h2 id="beta-feedback-title">β版へのご協力</h2>
@@ -209,5 +223,6 @@
       <span>Developed by eFactory</span>
       <a class="guide-back footer-back" href="%BASE_URL%">← 測定画面に戻る</a>
     </footer>
+    <script type="module" src="/src/guide.ts"></script>
   </body>
 </html>

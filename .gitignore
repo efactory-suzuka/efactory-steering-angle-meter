@@ -21,3 +21,7 @@ PHASE6_REVIEW.md
 *.key
 *.p12
 *.pfx
+
+!/.env.example
+/test-results/
+/playwright-report/

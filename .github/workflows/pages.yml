@@ -23,7 +23,16 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm test
-      - run: pnpm build
+      - run: pnpm exec playwright install --with-deps chromium
+      - name: Build browser test fixture (all analytics requests mocked)
+        run: pnpm build
+        env:
+          VITE_GA4_MEASUREMENT_ID: G-TEST00001
+      - run: pnpm test:browser
+      - name: Build production Pages artifact
+        run: pnpm build
+        env:
+          VITE_GA4_MEASUREMENT_ID: ${{ vars.VITE_GA4_MEASUREMENT_ID }}
       - uses: actions/upload-pages-artifact@v4
         if: github.event_name != 'pull_request'
         with:
