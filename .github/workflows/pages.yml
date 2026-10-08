@@ -28,7 +28,13 @@ jobs:
         run: pnpm build
         env:
           VITE_GA4_MEASUREMENT_ID: G-TEST00001
-      - run: pnpm test:browser
+      - name: Run pnpm test:browser
+        run: |
+          set +e
+          pnpm test:browser > /tmp/browser-test.log 2>&1
+          result=$?
+          cat /tmp/browser-test.log
+          exit "$result"
       - name: Report browser test failures
         if: failure()
         run: |
@@ -51,7 +57,12 @@ jobs:
               for (const child of suite.suites ?? []) visit(child);
             }
             for (const suite of report.suites) visit(suite);
-            appendFileSync(process.env.GITHUB_STEP_SUMMARY, 'Browser test failures\n\n```text\n' + failures.join('\n\n').replace(/\u001b\[[0-9;]*m/g, '') + '\n```\n');
+            const detail = failures.join('\n\n').replace(/\u001b\[[0-9;]*m/g, '');
+            appendFileSync(process.env.GITHUB_STEP_SUMMARY, 'Browser test failures\n\n```text\n' + detail + '\n```\n');
+            if (detail) console.log('::error title=Browser test failure::' + detail.replace(/%/g, '%25').replace(/\r/g, '%0D').replace(/\n/g, '%0A'));
+          } else if (existsSync('/tmp/browser-test.log')) {
+            const detail = readFileSync('/tmp/browser-test.log', 'utf8').slice(-12000).replace(/\u001b\[[0-9;]*m/g, '');
+            console.log('::error title=Browser runner failure::' + detail.replace(/%/g, '%25').replace(/\r/g, '%0D').replace(/\n/g, '%0A'));
           }
           NODE
       - name: Build production Pages artifact
