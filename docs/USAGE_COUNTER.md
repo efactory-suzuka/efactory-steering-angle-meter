@@ -155,4 +155,4 @@ Browserテストは全通信を遮断／モックし、テストの受付URLに�
 
 GitHub Actionsは既存測定テスト、Worker/D1テスト、モックURLでのブラウザテスト、本番Variableでの最終ビルド、Pagesデプロイの順です。Cloudflareへの自動デプロイや認証は追加していません。
 
-今回のローカル検証は、アプリ528件（既存495＋追加33）、Worker34件、ブラウザ11件が成功しています。アプリ／WorkerのTypeScript strict、アプリの本番ビルド、Workerのdry-run bundleも成功しました。Cloudflare本番のDB作成・公開・受信確認と、法令上の適用確認は未実施です。
+引き継ぎ時の検証は、アプリ528件（既存495＋追加33）、Worker34件、ブラウザ11件が成功しています。2026-10-09の再検証では、ローカルのアプリ528件・ブラウザ11件・strict・build・Worker dry-runが成功しました。WindowsではOSのアプリケーション制御により実Workers/D1テスト3件が起動できなかったため、[GitHub Actions 37856118584](https://github.com/efactory-suzuka/efactory-steering-angle-meter/actions/runs/37856118584) でWorker全34件を含む全検証とPages公開の成功を確認しました。専用D1と初期スキーマは作成済みです。Cloudflare Worker公開・本番受信確認、法令上の適用・契約確認は残っています。

@@ -22,7 +22,8 @@
 - ブラウザ：11件PASS。ローカルのビルドを公開originに見立てて全通信をモックした検証。実送信・実機検証ではない。
 - Worker strictとdry-run bundle：PASS。
 - WindowsのWorkerテスト：31件PASS、実Workers/D1の3件は実行環境起動失敗で未完了。OSのアプリケーション制御がworkerd.exeを遮断したことを確認。保護設定は変更していない。
-- GitHub Actionsで変更後のWorker全34件を再確認する。本番Workerの公開は全件成功を確認してから行う。
+- GitHub Actions [37856118584](https://github.com/efactory-suzuka/efactory-steering-angle-meter/actions/runs/37856118584) で変更後のアプリ528件、Worker全34件、ブラウザ11件、strictを含む最終production buildが成功。Linux上では実Workers/D1の3件も成功した。これはCloudflare本番の受信確認ではない。
+- 同runのPages deployも成功。公開guideがHTTP 200で集計説明へのリンク・国外処理の説明・通信未設定の表示を返すことを確認。アプリの送信は引き続き無効。
 
 ## 無料枠・ログ
 
