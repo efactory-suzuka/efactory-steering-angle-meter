@@ -37,7 +37,7 @@ Absolute orientation / compass supplies auxiliary quality only. Magnetic anomali
 ## Diagnostics and privacy
 
 ?debug=1 exposes a separate scrollable diagnostics panel through the top-right diagnostics button; closing it restores the unchanged one-screen measurement shell. It retains raw Euler, absolute flag, provenance, normalized Quaternion, gyro, gravity, independent event timestamps / previous / Hz / dt / opposite-channel age / gaps, orientation/gyro residual, PCA A/B and freshness. It additionally shows formal reference, angle, MAX, core/aggregate quality and Rear Stand Compensation, with per-event phase6 snapshots. JSON copy / Blob save remain local, storing only the latest eight seconds. The current app exports build 0.3.10-phase6-home-install, source physical-unverified and physicalValidation UNVERIFIED. Synthetic exports are explicitly marked synthetic; regression tests retain the earlier Phase 5 export default.
-No sensor uploads, account registration, GPS or external fonts. Optional GA4 access/usage analytics is consent-only and excludes sensor data, angles and diagnostics; see the GA4 section below. Raw diagnostic logs, test report JSON and local review screenshots are excluded from the public repository. Shared logs may contain userAgent; the user chooses whether to share them.
+No sensor uploads, account registration, GPS or external fonts. Optional first-party usage counts send only open/start/success, without cookies or identities; see the counter section below. Raw diagnostic logs, test report JSON and local review screenshots are excluded from the public repository. Shared logs may contain userAgent; the user chooses whether to share them.
 Branding and the official site link are configured in src/config/branding.ts. Without a supplied logo, text fallback is displayed.
 
 [DEVICE_TEST_PROTOCOL.md](DEVICE_TEST_PROTOCOL.md) retains the seven-second axis checks and adds formal UI instructions. [SENSOR_SPEC_REVIEW.md](SENSOR_SPEC_REVIEW.md) records the earlier API convention review.
@@ -120,6 +120,6 @@ No Service Worker or offline cache was added. Current Chrome install criteria li
 
 Physical iPhone/Android Home Screen installation, actual launcher label truncation and standalone sensor permissions remain unverified. A small-viewport desktop browser check is a layout check only. Network access is needed to open/update the app; offline operation is not offered.
 
-## GA4 usage analytics
+## Minimal usage counter
 
-Optional consent-based analytics uses `VITE_GA4_MEASUREMENT_ID`. Empty/placeholder IDs disable all Google loading and sending. Measurement calculations stay local and unchanged. See [GA4 setup, privacy, events and reports](docs/GA4_ANALYTICS.md) for deployment configuration and operating instructions.
+GitHub Pages remains the app host. The independent `worker/` project counts only `open`, `start` and `success` into daily JST totals in D1. No consent UI, tracking identifiers, individual records or measurement uploads. Empty `VITE_COUNTER_ENDPOINT` disables communication. Enable only after Worker receipt tests and legal/disclosure review. See [setup, privacy and operation](docs/USAGE_COUNTER.md).

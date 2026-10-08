@@ -1,9 +1,6 @@
 import './ui/styles.css';
-import './ui/analyticsConsent.css';
-import {createBrowserAnalytics} from './analytics/browser';
-import {MeasurementAnalyticsObserver} from './analytics/measurementObserver';
-import type {AnalyticsErrorCode} from './analytics/events';
-import {analyticsConsentMarkup,bindAnalyticsConsent} from './ui/analyticsConsent';
+import {createUsageCounter} from './counter/client';
+import {MeasurementCounterObserver} from './counter/measurementObserver';
 import {TH} from './config/thresholds';
 import {EFACTORY_URL,EFACTORY_LOGO} from './config/branding';
 import {SensorAdapter,type AdapterOutput,type OrientationSource,type RawOrientation} from './sensors/sensorAdapter';
@@ -34,7 +31,7 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML=`
 <main class="measurement-main" id="measurement-screen">
 <header class="topbar"><div class="brand"><a class="header-brand-link" href="${EFACTORY_URL}" target="_blank" rel="noopener noreferrer" aria-label="eFactoryホームページ（別タブで開く）"><svg class="header-wordmark" viewBox="58 183 1588 506" role="img" aria-label="eFactory"><image href="${import.meta.env.BASE_URL}${EFACTORY_LOGO}" width="1672" height="941" preserveAspectRatio="xMidYMid meet"/></svg></a><span class="product-title"><span class="product-name">Steering Angle Measure</span><span class="beta-badge" aria-label="ベータ版">β版</span></span></div>${debug?'<button class="debug-toggle" id="debug-toggle">診断</button>':''}</header>
 <section class="instruction"><div class="step-heading"><span id="step-label">STEP 1 / 4</span><a class="guide-link" href="${import.meta.env.BASE_URL}guide.html">使い方・仕組み →</a></div><nav id="step-progress" aria-label="測定の進行状況"></nav>
-<div id="primary-instruction" role="status" aria-live="polite" aria-atomic="true"><h1 id="status-label">ハンドルの切れ角を測る</h1><p id="status-text"></p></div><div id="center-progress" class="hold-progress" hidden><progress id="center-meter" max="1" value="0" aria-label="静止保持の進捗"></progress><span id="hold-time">0.0 / 0.7秒</span></div><div class="secondary-slot">${homeInstallButton}${analyticsConsentMarkup}<div id="axis-activity" class="axis-activity" role="status" hidden><span class="axis-spinner" aria-hidden="true"></span><span>推定中…</span></div><p id="secondary-status" role="status" aria-live="polite" aria-atomic="true" hidden></p></div></section>
+<div id="primary-instruction" role="status" aria-live="polite" aria-atomic="true"><h1 id="status-label">ハンドルの切れ角を測る</h1><p id="status-text"></p></div><div id="center-progress" class="hold-progress" hidden><progress id="center-meter" max="1" value="0" aria-label="静止保持の進捗"></progress><span id="hold-time">0.0 / 0.7秒</span></div><div class="secondary-slot">${homeInstallButton}<div id="axis-activity" class="axis-activity" role="status" hidden><span class="axis-spinner" aria-hidden="true"></span><span>推定中…</span></div><p id="secondary-status" role="status" aria-live="polite" aria-atomic="true" hidden></p></div></section>
 <section class="gauge-area"><div id="measurement-mode" class="measurement-mode" hidden>合成データ · 実機結果ではありません</div><div id="gauge"></div>
 <div class="angle-readout"><strong id="live-angle">—</strong><span id="side">CENTER</span></div>
 <div id="mount-guide" class="mounting-card" hidden>${freeMountGuideSvg}<label class="invert-setting"><input type="checkbox" id="invert">左右反転（必要な場合のみ）</label></div></section>
@@ -43,7 +40,7 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML=`
 <div class="actions main-actions"><button class="primary" id="start">測定開始</button><button class="primary" id="mounted" hidden>固定しました</button><button class="primary" id="center" hidden>中央を記録</button><button class="finish-button" id="finish" hidden>測定終了</button></div>
 <p id="result-note" class="result-note" hidden></p>
 <p class="beta-notice">測定値は参考値としてご利用ください。</p>
-<footer class="footer"><div class="privacy">センサーデータは端末内処理・外部送信なし<br>解析は同意時のみ · <a href="${import.meta.env.BASE_URL}guide.html#privacy">解析設定</a></div><div class="footer-right"><a id="brand-link" hidden rel="noopener noreferrer" target="_blank"><img class="logo" id="efactory-logo" alt="eFactory" hidden><span id="brand-fallback">eFactory</span></a><span>Developed by eFactory</span></div></footer>
+<footer class="footer"><div class="privacy">センサーデータは端末内処理・外部送信なし</div><div class="footer-right"><a id="brand-link" hidden rel="noopener noreferrer" target="_blank"><img class="logo" id="efactory-logo" alt="eFactory" hidden><span id="brand-fallback">eFactory</span></a><span>Developed by eFactory</span></div></footer>
 </main>
 ${homeInstallDialog}
 ${debug?`<aside id="diagnostic-panel" class="diagnostic-panel" hidden>${steeringDiagnosticLiveBar(debug)}<section class="card debug"><div class="card-head"><h2>Sensor Diagnostics</h2><span class="pill">LOCAL ONLY</span></div><p class="muted">Phase 5の生データ・A/B PCA診断を維持。重力符号・端末の挙動・閾値は実機未検証です。</p><div id="demo-notice" class="demo-notice" hidden>合成データを表示中です。実機の取得結果ではありません。</div>
@@ -55,12 +52,8 @@ ${steeringDiagnosticCard(debug)}
 `;
 const el=(id:string)=>document.getElementById(id)!;
 const homeInstaller=bindHomeInstall();
-const analytics=createBrowserAnalytics('measurement');
-const analyticsConsent=bindAnalyticsConsent(analytics,el('analytics-consent'));
-const measurementAnalytics=new MeasurementAnalyticsObserver((event,details)=>analytics.track(event,details));
-let analyticsErrorCode:AnalyticsErrorCode|undefined;
-document.querySelector('.guide-link')!.addEventListener('click',()=>analytics.track('guide_open'));
-el('home-install').addEventListener('click',()=>{if(!(el('home-install') as HTMLButtonElement).disabled&&!el('home-install').hidden)analytics.track('home_install_clicked');},{capture:true});
+const counter=createUsageCounter();
+const measurementCounter=new MeasurementCounterObserver(event=>counter.track(event));
 const button=(id:string)=>el(id) as HTMLButtonElement;
 let controller=new MeasurementController(),diagnostics=new SensorDiagnostics(),guidance=new GuidanceViewModel('CORE');
 let latest:AdapterOutput|undefined,rawMotion:unknown,rawOrientation:unknown;
@@ -70,17 +63,13 @@ if(debug)bindDiagnosticScroll(el('diagnostic-panel'),diagnosticScroll);
 let previousDetailRender=-Infinity;
 let rawBySource:Partial<Record<OrientationSource,RawOrientation>>={};
 let active=false,syntheticMode=false,generation=0,startedAt=0,captureStartedIso:string|null=null,syntheticShownAt=0,resumeFreshnessAfter=0;
-function observeAnalytics(now:number){
+function observeCounter(){
   const max=controller.max;
-  measurementAnalytics.observe({state:controller.state,centerRecorded:!!controller.zero,axisCalibrated:!!controller.axis,
-    leftRecorded:max.valid&&max.confirmedLeftMaxDeg<=-TH.MIN_LOCK_ANGLE_DEG,rightRecorded:max.valid&&max.confirmedRightMaxDeg>=TH.MIN_LOCK_ANGLE_DEG,
-    errorCode:analyticsErrorCode},now);
+  measurementCounter.observe({state:controller.state,bothConfirmed:!!controller.zero&&max.valid&&max.complete});
 }
 function accept(out:AdapterOutput){
-  const before=controller.state;
   if(!document.hidden||syntheticMode)controller.ingest(out.frame);
-  if(before!=='SENSOR_ERROR'&&controller.state==='SENSOR_ERROR')analyticsErrorCode='sensor_invalid_data';
-  observeAnalytics(out.frame.timestampMs);
+  observeCounter();
   if(debug)diagnosticScroll.defer(out.frame.timestampMs,sensorHealth(out.frame,out.frame.timestampMs,startedAt).ready);
   const view=guidance.update(controller,out.frame.timestampMs);
   if(debug)latestSteeringDiagnostics=steeringDiagnostics(controller,out.frame);
@@ -92,11 +81,11 @@ const adapter=new SensorAdapter(window,out=>{if(active)accept(out);});
 function disconnect(){generation++;active=false;adapter.stop();}
 function resetLogs(){diagnosticScroll.reset();previousDetailRender=-Infinity;latestSteeringDiagnostics=undefined;latest=undefined;rawMotion=undefined;rawOrientation=undefined;rawBySource={};diagnostics=new SensorDiagnostics();captureStartedIso=null;if(debug){el('demo-notice').hidden=true;el('copy-fallback').hidden=true;el('export-message').textContent='';}}
 button('start').addEventListener('click',async()=>{
-  disconnect();const mine=++generation;syntheticMode=false;resetLogs();analyticsErrorCode=undefined;controller.start(performance.now());render();
+  disconnect();const mine=++generation;syntheticMode=false;resetLogs();controller.start(performance.now());render();
   const w=window as unknown as {DeviceMotionEvent?:PermissionAPI;DeviceOrientationEvent?:PermissionAPI};
   const permission=await requestSensorPermissions(window.isSecureContext,w.DeviceMotionEvent,w.DeviceOrientationEvent);
   if(mine!==generation)return;
-  if(!permission.ok){analyticsErrorCode=({INSECURE:'sensor_insecure_context',UNSUPPORTED:'sensor_unsupported',DENIED:'sensor_permission_denied',ERROR:'sensor_permission_error'} as const)[permission.reason];controller.fail();controller.notice=permission.message;render();return;}
+  if(!permission.ok){controller.fail();controller.notice=permission.message;render();return;}
   startedAt=performance.now();controller.granted(startedAt);captureStartedIso=new Date().toISOString();active=true;adapter.start();render();
 });
 button('mounted').addEventListener('click',()=>{controller.mounted();render();});
@@ -116,13 +105,10 @@ function render(){
   const now=performance.now(),panelOpen=debug&&!el('diagnostic-panel').hidden;
   if(active&&!document.hidden&&now>=resumeFreshnessAfter){
     const health=sensorHealth(latest?.frame,now,startedAt);
-    const before=controller.state;
     checkUiSensorFreshness(controller,now,health.ready,debug?diagnosticScroll:undefined);
-    if(before!=='SENSOR_ERROR'&&controller.state==='SENSOR_ERROR')analyticsErrorCode=latest?'sensor_stale':'sensor_timeout';
   }
   const s=controller.state,r=controller.reading,q=controller.quality,m=controller.max;
-  observeAnalytics(now);
-  analyticsConsent.setState(s);
+  observeCounter();
   homeInstaller.setState(s);
   const valid=m.valid&&!!controller.zero&&!!r&&['MEASURING','RESULT'].includes(s);
   const left=valid&&m.confirmedLeftMaxDeg<=-TH.MIN_LOCK_ANGLE_DEG?m.confirmedLeftMaxDeg:null,right=valid&&m.confirmedRightMaxDeg>=TH.MIN_LOCK_ANGLE_DEG?m.confirmedRightMaxDeg:null;

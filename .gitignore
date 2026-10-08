@@ -25,3 +25,7 @@ PHASE6_REVIEW.md
 !/.env.example
 /test-results/
 /playwright-report/
+
+/worker/dist/
+/worker/.wrangler/
+/worker/.dev.vars
