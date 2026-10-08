@@ -43,6 +43,8 @@ async function installClock(page:Page){
   // Drive only the sensor receipt clock. Real RAF, UI interaction and tag timers keep running.
   await page.addInitScript(()=>{
     let now=0;
+    // Synthetic sensors must not depend on headless Chromium's OS permission support.
+    for(const sensor of [DeviceMotionEvent,DeviceOrientationEvent])Object.defineProperty(sensor,'requestPermission',{configurable:true,value:async()=> 'granted'});
     Object.defineProperty(performance,'now',{value:()=>now});
     Object.defineProperty(window,'__advanceSensorTime',{value:()=>{now+=20;}});
     for(const type of ['deviceorientation','devicemotion'])window.addEventListener(type,event=>{if(event.isTrusted)event.stopImmediatePropagation();},true);
@@ -50,7 +52,7 @@ async function installClock(page:Page){
 }
 async function startCenter(page:Page){
   await page.getByRole('button',{name:'測定開始',exact:true}).click({force:true});for(let n=0;n<3;n++)await frame(page);
-  await expect(page.locator('#measurement-screen')).toHaveAttribute('data-stage','MOUNT_GUIDE');
+  await expect(page.locator('#measurement-screen'),await page.locator('#status-text').textContent()??'sensor startup').toHaveAttribute('data-stage','MOUNT_GUIDE');
   await page.getByRole('button',{name:'固定しました',exact:true}).click({force:true});await page.getByRole('button',{name:'中央を記録',exact:true}).click({force:true});
   for(let n=0;n<40;n++)await frame(page);
   await expect(page.locator('#measurement-screen')).toHaveAttribute('data-stage','AXIS_CALIBRATION');
