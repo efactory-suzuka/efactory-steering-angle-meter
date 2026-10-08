@@ -29,6 +29,31 @@ jobs:
         env:
           VITE_GA4_MEASUREMENT_ID: G-TEST00001
       - run: pnpm test:browser
+      - name: Report browser test failures
+        if: failure()
+        run: |
+          node --input-type=module <<'NODE'
+          import {existsSync, readFileSync, appendFileSync} from 'node:fs';
+          const file = 'test-results/browser-results.json';
+          if (existsSync(file)) {
+            const report = JSON.parse(readFileSync(file, 'utf8'));
+            const failures = [];
+            function visit(suite) {
+              for (const spec of suite.specs ?? []) {
+                for (const test of spec.tests) {
+                  for (const result of test.results) {
+                    if (result.status !== 'passed') {
+                      failures.push(spec.title + '\n' + (result.errors ?? []).map(error => error.message).join('\n'));
+                    }
+                  }
+                }
+              }
+              for (const child of suite.suites ?? []) visit(child);
+            }
+            for (const suite of report.suites) visit(suite);
+            appendFileSync(process.env.GITHUB_STEP_SUMMARY, 'Browser test failures\n\n```text\n' + failures.join('\n\n').replace(/\u001b\[[0-9;]*m/g, '') + '\n```\n');
+          }
+          NODE
       - name: Build production Pages artifact
         run: pnpm build
         env:
