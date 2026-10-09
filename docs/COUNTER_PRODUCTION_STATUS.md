@@ -12,8 +12,8 @@
 - Worker公開・HTTP受信確認：完了。公開時に発行されたURLは `https://efactory-usage-counter.efactory-suzuka.workers.dev`、受付は末尾 `/count`。Version ID：`0057b127-1779-40f3-b017-28294bcc4914`。
 - 認証はCloudflare公式Wrangler OAuthでAccount Read・Workers Scripts Write・D1 Writeのみを選択し、成功を確認。認証情報はソース／GitHub／Vite変数へ登録していない。
 - remote migration `0001_daily_counts.sql` を適用済み。既存テーブルとデータを削除していない。
-- `VITE_COUNTER_ENDPOINT`：作業開始時は存在しない。受信・法令確認が終わるまで登録しない。
-- 旧 `VITE_GA4_MEASUREMENT_ID` は開始時に残存。削除操作でGitHubの本人確認が要求され、メール確認待ち。Google側のデータは変更していない。
+- `VITE_COUNTER_ENDPOINT`：受信・公表・認証確認後、公開受付URLをRepository Variableへ登録済み。保存後の一覧で正しいURLと旧GA4 Variableの不存在を確認した。登録だけでは公開済みアプリは変化せず、次のmain pushのproduction buildで反映される。
+- 旧 `VITE_GA4_MEASUREMENT_ID` は削除済み。GitHub本人確認をユーザーが完了し、Variables一覧から消えたことを確認。Google側のデータは変更していない。
 - LINE用Workerなど他サービスは変更していない。
 
 ## 検証
@@ -39,7 +39,9 @@ D1 DashboardはDB数10、読込500万行/日、書込10万行/日、容量5GBの
 
 個人情報保護委員会の通則編、外国委託FAQ Q12-1、CloudflareのPrivacy Policy、DPA v6.4、SSAを確認した。日別合計と、IP・標準HTTP情報の基盤処理を分けてguideに説明し、国外処理があり得る旨とDPAリンクを追加した。guide冒頭から集計説明に直接移動できるようにした。測定画面は変更していない。
 
-残る確認は、本サービスへの外部送信規律の適用と公表方法の十分性、実際の契約・DPAの適用範囲と日本法上必要な委託・国外処理の措置、対象地域。契約が締結済みであることを推測していない。詳細資料は [USAGE_COUNTER.md](USAGE_COUNTER.md) の法令確認欄を参照。
+ユーザーは国内向け・DPAの別途締結なしと確認した。DPAが個別に成立したとは推測しない。個人情報保護委員会の現行外国提供編4-3にGlobal CBPR認証の経路があり、公式認証名簿でCloudflare, Inc.の認証と2027年1月までの有効性、同社資料でGlobal Cloud Platformの対象範囲を確認した。IP等の基盤処理はこの根拠で確認し、個人別記録を持たない日別合計の本構成を有効化する判断とした。PRP単独を法的根拠にはしていない。
+
+外部送信規律の対象外とは断定せず、guide冒頭から到達できる日本語の公表で対応する。米国所在の送信先、情報、両者の目的、実受付URL、国外処理、問い合わせを掲載し、有効化と同時に未送信の説明を除く。次回認証確認は2026年12月中、以後少なくとも年1回と期限・変更時。維持困難なら送信を停止する。継続確認・情報提供の手順と一次資料は [USAGE_COUNTER.md](USAGE_COUNTER.md) に記録。個別の法的適用の行政認定、基盤処理の独立監査、海外向けの法令確認ではない。
 
 ## 本番受信テスト
 
@@ -58,8 +60,6 @@ D1 DashboardはDB数10、読込500万行/日、書込10万行/日、容量5GBの
 
 テスト後のD1：`2026-10-09 / open=1 / start=1 / success=1`。拒否テストによる増分はなし。これは直接HTTP送信の受信検証であり、公開アプリや物理センサーからの送信を確認したものではない。テスト分は削除せず、合計に各1回含まれる。
 
-## 残る順序
+## アプリ有効化の確認
 
-GitHubの本人確認・旧Variable削除 → 公表・適用／契約確認 → `VITE_COUNTER_ENDPOINT`登録 → 有効化状態に合わせたguide更新 → 本番build/Pages反映 → 公開ページとDB増分の照合。
-
-guideへ実際の受付URLを記載したが、アプリ送信が無効である旨は維持。対象地域と実際のDPAの適用状況はユーザーへ確認中。測定ロジック、UI、他Workerは変更していない。
+guide・運用文書のみ更新。測定ロジック、UI、他Workerは変更していない。ローカルのアプリ528件、strict、モックURL build、本番URL buildがPASS。ブラウザ11件中10件がPASSし、ブラウザ起動待ちで中断した1件は個別再実行でPASS。Workerはstrict/dry-runと31件PASS、実runtimeの3件は前述のWindows制限で起動不可。GitHub Actionsで全件再確認し、Pages公開・公開アプリとD1の増分照合を追記する。物理端末によるセンサー操作と本番の通信確認は区別する。

@@ -2,7 +2,7 @@
 
 GitHub Pagesの測定アプリと、独立した `worker/` のCloudflare Workers + D1で構成します。GA4・Google tag・同意UI・同意保存・解析設定は除去しました。測定／センサー／軸校正／700ms保持／MAX／Quality／診断の既存実装は変更していません。
 
-**本番アプリの通信はまだ無効です。** 専用D1・CLI認証・remote migration・Worker公開・本番3イベントの受信確認が完了しました。受付は `https://efactory-usage-counter.efactory-suzuka.workers.dev/count` です。下記の法令・公表確認が完了するまで、本番の `VITE_COUNTER_ENDPOINT` は空にしてください。現在の作業証跡は [本番設定の確認記録](COUNTER_PRODUCTION_STATUS.md) を参照してください。
+専用D1・CLI認証・remote migration・Worker公開・本番3イベントの受信確認が完了しました。受付は `https://efactory-usage-counter.efactory-suzuka.workers.dev/count` です。国内向け・DPAの別途締結なしという運用条件の確認後、下記の認証・公表確認を行い、この受付を本番Variableへ設定して公開する構成です。実際の反映・検証結果は [本番設定の確認記録](COUNTER_PRODUCTION_STATUS.md) を参照してください。
 
 ## 保存するもの・イベント
 
@@ -120,7 +120,7 @@ GROUP BY day ORDER BY day DESC;
 
 success/startは同一期間の回数比率であり、個々の試行を結び付けた厳密な完了率ではありません。日付またぎ・通信失敗で値がずれることがあります。利用者人数をこの数字から算出しないでください。
 
-## 法令上の通知・公表：有効化前の確認事項
+## 法令上の通知・公表：2026-10-09の確認と運用条件
 
 Cookieを使わず個別履歴を保存しないことだけで、すべての通知・公表義務がなくなるとは断定できません。実装前にこの点を報告しています。今回のコードは未設定なら通信しないため、確認未完了でもGA4除去版を公開できます。集計通信の有効化は確認後に行います。
 
@@ -131,11 +131,20 @@ Cookieを使わず個別履歴を保存しないことだけで、すべての�
 
 確認資料：[総務省の外部送信規律に関する案内](https://www.soumu.go.jp/main_sosiki/joho_tsusin/d_syohi/gaibusoushin.html)、[電気通信事業法27条の12・164条](https://laws.e-gov.go.jp/law/359AC0000000086)、[施行規則22条の2の27～29](https://laws.e-gov.go.jp/law/360M50001000025)、[個人情報保護委員会の通則編](https://www.ppc.go.jp/personalinfo/legal/guidelines_tsusoku/)、[外国への委託についてのFAQ Q12-1](https://www.ppc.go.jp/all_faq_index/faq1-q12-1/)、[Cloudflare Privacy Policy](https://www.cloudflare.com/privacypolicy/)、[Cloudflare DPA](https://www.cloudflare.com/cloudflare-customer-dpa/)、[Self-Serve Subscription Agreement](https://www.cloudflare.com/terms/)。
 
-2026-10-09にe-Gov公式APIの現行条文、個人情報保護委員会、Cloudflareの公式資料を確認しました（総務省の案内ページは取得不可）。外部送信規律はCookieの有無だけで決まらず、対象サービスでは送信情報・取扱者の名称・目的を公表等する規定があります。施行規則は容易に到達できるページでの公表も規定しています。guide冒頭に集計説明へのリンクを設けました。これは本サービスの適用判定や公表方法の十分性を法的に確定したものではありません。
+2026-10-09にe-Gov公式APIの現行条文、個人情報保護委員会、Cloudflareの公式資料を確認しました（総務省の案内ページは取得不可）。外部送信規律の対象外とは断定せず、公表による対応を採ります。測定画面の既存「使い方・仕組み」からguideへ移動でき、冒頭の「利用回数の集計・外部への情報送信について」から該当説明へ移動できます。送信情報・取扱者・両者の目的・実受付URL・基盤処理・国外処理を静的な日本語で掲載します。測定画面への同意UI・設定追加はありません。この実装判断は行政・司法による個別の適用認定ではありません。
 
-D1の日別合計と、CloudflareによるIP等の通信基盤処理は区別します。通則編の統計情報の説明だけを根拠に、通信全体が個人情報保護法の対象外とはしません。Cloudflareは国外での処理を説明しています。公開DPA v6.4（2026-04-03発効）は適用法令の対象となる処理を定め、SSA 6.1はEU/UK・CCPAのPersonal Dataを条件にDPAを参照しています。公開文書が存在することだけで、このアカウントの日本法上必要な委託・越境移転の措置が確認済みとは扱いません。対象サービスの適用、公表の到達性、実際の契約・DPAの適用範囲と国外処理の根拠、海外利用者を対象にするかの確認が残っています。確認できるまでアプリ送信は有効化しません。
+D1の日別合計と、CloudflareによるIP等の通信基盤処理は区別します。通信全体を個人情報保護法の対象外とはしません。ユーザーは国内向け・DPAの別途締結なしと確認しました。公開DPA v6.4（2026-04-03発効）とSSA 6.1の参照だけでは日本向けの個別契約の成立を断定せず、DPA締結済みとも記載しません。
 
-追加で[CloudflareのAPPI説明](https://www.cloudflare.com/trust-hub/appi/)を確認。同社はDPAがSSA／Enterprise Agreementへ組み込まれ、日本からの越境移転に相当措置を提供すると説明しています。ただしページは旧第24条の番号を使用しており、このアカウントへ適用される現行契約の個別確認とは分けます。[個人情報保護委員会FAQ Q8-3](https://www.ppc.go.jp/all_faq_index/faq1-q8-3/)では、個人関連情報の提供一般について同意が必要なのではなく、受領者が個人データとして取得することが想定される場合に限るとされています。IPが届くことだけで同意必須とも断定しません。今回の構成に個人識別・他データとの突合はありませんが、Cloudflare側の基盤処理の契約上の位置付けは確認を残します。
+[個人情報保護委員会の外国提供編4-3](https://www.ppc.go.jp/personalinfo/legal/guidelines_offshore/)は、規則16条2号の体制の例としてGlobal CBPR認証を明記しています。[Global CBPR Forumの公式認証名簿](https://www.globalcbpr.org/privacy-certifications/directory/)でCloudflare, Inc.のGlobal CBPRとGlobal PRPを確認しました。認証機関はSchellman Compliance, LLC、有効期限の表示は2027年1月です（日までは掲載されていない）。[CloudflareのCBPR対象範囲](https://www.cloudflare.com/trust-hub/compliance-resources/global-cbpr/)はGlobal Cloud Platformを通じた全サービスの組織的な個人情報処理を対象とし、China Networkを除きます。本構成はChina Networkを使いません。IP等についてのCloudflare自身の基盤処理はこのCBPR認証を根拠に確認し、別途DPA締結を有効化の前提にしません。顧客コンテンツを処理する立場の[PRP認証](https://www.cloudflare.com/trust-hub/compliance-resources/global-prp/)も確認しましたが、PRPだけを日本の規則16条2号の根拠とはしていません。
+
+[FAQ Q8-3](https://www.ppc.go.jp/all_faq_index/faq1-q8-3/)も確認し、IP等が基盤に届くことだけで個人関連情報の提供に一律の同意義務があるとは判断していません。本アプリでは個人識別・顧客データとの突合をせず、個別のイベント履歴を作らず、Cloudflareへの追加の解析設定もありません。国内向け・3文字列・日別合計という今回の範囲について、認証確認と公表を前提に有効化します。外国向け展開や識別子・詳細ログの追加はこの判断の範囲外です。
+
+### 継続確認と問い合わせ対応
+
+- 確認責任者はeFactory運営者。初回確認は2026-10-09。次回は期限前の**2026年12月中**、以後は少なくとも年1回、認証期限・対象範囲変更・重大な法制度変更の際にも確認します。これは運用手順であり、自動監視やリマインダーを設定したものではありません。
+- 名簿とCloudflareのCBPR対象範囲、Privacy Policy、法執行機関への対応・透明性報告、個人情報保護委員会の公表資料で、保護措置の継続と影響する外国制度を確認します。米国の公的アクセス制度は存在し得るため「国外でも日本と同じ」「公的アクセスはない」と説明しません。[米国の制度の参考資料](https://www.ppc.go.jp/files/pdf/USA_report.pdf)は2021年時点の調査であり最新の保証には使いません。[Cloudflareの法執行対応](https://www.cloudflare.com/trust-hub/law-enforcement/)と[透明性報告](https://www.cloudflare.com/transparency/)では法的手続による提供や限定的な将来メタデータ提供を説明しています。今回確認した認証と最小化設定に対する具体的な支障は認めていませんが、基盤での処理・保持を独立監査したわけではありません。
+- 確認日、期限、対象範囲、制度・支障の有無、対応をこの記録へ残します。認証失効・対象外・保護措置の維持困難が判明した場合、`VITE_COUNTER_ENDPOINT`を削除して再公開し、必要なら専用Workerも停止します。
+- guideのeFactory窓口からの問い合わせには、体制の根拠、保護措置、確認方法・頻度、所在国（米国）、外国制度の影響、支障と対応を説明します。個別履歴・識別子を保有しないため、利用者別カウントの特定・開示・消去ができるとは約束しません。Cloudflareが保有する情報への請求は同社Privacy Policyの窓口も案内します。
 
 ## 開発検証
 
@@ -157,4 +166,4 @@ Browserテストは全通信を遮断／モックし、テストの受付URLに�
 
 GitHub Actionsは既存測定テスト、Worker/D1テスト、モックURLでのブラウザテスト、本番Variableでの最終ビルド、Pagesデプロイの順です。Cloudflareへの自動デプロイや認証は追加していません。
 
-引き継ぎ時の検証は、アプリ528件（既存495＋追加33）、Worker34件、ブラウザ11件が成功しています。2026-10-09の再検証では、ローカルのアプリ528件・ブラウザ11件・strict・build・Worker dry-runが成功しました。WindowsではOSのアプリケーション制御により実Workers/D1テスト3件が起動できなかったため、[GitHub Actions 37856118584](https://github.com/efactory-suzuka/efactory-steering-angle-meter/actions/runs/37856118584) でWorker全34件を含む全検証とPages公開の成功を確認しました。専用D1、remote migration、Cloudflare Worker公開と本番受信確認も完了しました。法令上の適用・契約確認とアプリ送信の有効化は残っています。
+引き継ぎ時の検証は、アプリ528件（既存495＋追加33）、Worker34件、ブラウザ11件が成功しています。2026-10-09の再検証でもローカルのアプリ528件・ブラウザ11件・strict・build・Worker dry-runが成功しました。WindowsではOSのアプリケーション制御により実Workers/D1テスト3件が起動できなかったため、[GitHub Actions 37857797422](https://github.com/efactory-suzuka/efactory-steering-angle-meter/actions/runs/37857797422) でWorker全34件を含む全検証とPages公開の成功を確認しました。最新の有効化・公開後確認は本番設定の確認記録を参照してください。

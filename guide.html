@@ -198,10 +198,11 @@
         <p class="section-eyebrow">プライバシー</p>
         <h2 id="privacy-title">利用回数の集計について</h2>
         <p>β版の改善のため、eFactoryはページを開いた回数、中央記録を開始した回数、同じ測定で左右両方のMAXを確定して終了した回数を集計します。アクセス回数は延べ回数で、利用者の人数ではありません。</p>
-        <p>集計が有効な場合、送信する本文は open・start・success のいずれかだけです。eFactoryが管理するCloudflare Workersで受け取り、D1に日本時間の日付・種類・合計回数だけを保存します。個別の利用履歴は作成せず、集計のためのCookie、端末ID、localStorageは使用しません。</p>
+        <p>通常の測定ページでは、送信する本文は open・start・success のいずれかだけです。eFactoryが管理するCloudflare Workersで受け取り、D1に日本時間の日付・種類・合計回数だけを保存します。個別の利用履歴は作成せず、集計のためのCookie、端末ID、localStorageは使用しません。使い方ページと診断モードからは集計イベントを送信しません。</p>
         <p>測定角度、車両情報、GPS、ジャイロ・加速度、Quaternion、診断情報、氏名等は送信しません。センサーデータは端末内で処理します。OS・ブラウザ情報や参照元は集計せず、アプリの送信本文にも含めません。</p>
         <p>通信時には、イベント名のほかに、IPアドレス、ブラウザの種類などの標準的な通信情報もCloudflareのネットワークへ届きます。eFactoryの集計処理ではこれらを保存せず、個別のアクセス記録を作る機能も無効にしています。Cloudflareは、サービスの提供・保護や不正利用の防止などのために通信情報を処理します。この基盤処理は同社の方針に従い、日本国外でも行われる場合があります。日本国内だけで処理されることを保証するものではありません。Google Analyticsや広告向けの解析サービスは使用しません。</p>
-        <p>送信先はeFactoryの集計システム（処理基盤：Cloudflare, Inc.）、目的はβ版の利用回数の把握と改善です。受付URLは <a href="https://efactory-usage-counter.efactory-suzuka.workers.dev/count" target="_blank" rel="noopener noreferrer">https://efactory-usage-counter.efactory-suzuka.workers.dev/count</a> です。現在はアプリからの集計送信を有効にしていないため、利用時のイベントは送信していません。</p>
+        <p>送信先はeFactoryの集計システム（処理基盤：米国のCloudflare, Inc.）、目的はβ版の利用回数の把握と改善です。受付URLは <a href="https://efactory-usage-counter.efactory-suzuka.workers.dev/count" target="_blank" rel="noopener noreferrer">https://efactory-usage-counter.efactory-suzuka.workers.dev/count</a> です。</p>
+        <p>Cloudflareの通信情報の取扱いについては、Global CBPR認証と同社の公表方針を確認しています。認証の有効性・対象範囲や国外処理の状況は定期的に確認し、保護措置の維持が困難になった場合は集計を停止します。集計や国外での取扱いについてのお問い合わせは、<a href="https://efactorysuzuka.wixsite.com/efactory" target="_blank" rel="noopener noreferrer">eFactoryのホームページ</a>からご連絡ください。</p>
         <p><a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener noreferrer">Cloudflareのプライバシーポリシー</a> · <a href="https://www.cloudflare.com/cloudflare-customer-dpa/" target="_blank" rel="noopener noreferrer">データ処理に関する契約条件</a></p>
       </section>
 
