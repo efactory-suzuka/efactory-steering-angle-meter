@@ -127,7 +127,7 @@ Cookieを使わず個別履歴を保存しないことだけで、すべての�
 - **電気通信事業法の外部送信規律（第27条の12）**：運営者・提供サービスが対象になるか、対象情報・適用除外に該当するかを確認してください。対象の場合は送信情報、送信先名称、利用目的などについて法令に適合する通知／容易に知り得る状態での公表等が必要です。規律が適用される場合でも、適切な公表で対応できるかを確認し、同意UIが必須と決め付けないでください。
 - **個人情報保護法**：アプリのDBは日別合計のみですが、ネットワーク基盤ではIP等が処理されます。eFactoryとCloudflareの処理の関係、個人情報・個人関連情報への該当、第三者提供／委託／外国での処理に関する義務、契約・DPAを実態に合わせて確認してください。
 - **対象地域**：日本以外の利用者も対象とする場合は、その地域のプライバシー・端末情報利用規制を別途確認してください。
-- **実際の公表**：guideの静的説明は公表文案です。実送信先URL、運営主体、受信情報の範囲、Cloudflareの基盤処理が契約・運用実態と一致していること、guideへの既存リンクで必要な容易性を満たすことを確認してください。必要な義務を満たせない場合は通信を有効化しません。
+- **実際の公表**：guideの静的説明へ実送信先URL、運営主体、受信情報の範囲、Cloudflareの基盤処理を掲載しています。運用を変えるときも、説明との一致とguideへの到達性を確認してください。必要な義務を満たせない場合は通信を停止します。
 
 確認資料：[総務省の外部送信規律に関する案内](https://www.soumu.go.jp/main_sosiki/joho_tsusin/d_syohi/gaibusoushin.html)、[電気通信事業法27条の12・164条](https://laws.e-gov.go.jp/law/359AC0000000086)、[施行規則22条の2の27～29](https://laws.e-gov.go.jp/law/360M50001000025)、[個人情報保護委員会の通則編](https://www.ppc.go.jp/personalinfo/legal/guidelines_tsusoku/)、[外国への委託についてのFAQ Q12-1](https://www.ppc.go.jp/all_faq_index/faq1-q12-1/)、[Cloudflare Privacy Policy](https://www.cloudflare.com/privacypolicy/)、[Cloudflare DPA](https://www.cloudflare.com/cloudflare-customer-dpa/)、[Self-Serve Subscription Agreement](https://www.cloudflare.com/terms/)。
 

@@ -62,4 +62,29 @@ D1 DashboardはDB数10、読込500万行/日、書込10万行/日、容量5GBの
 
 ## アプリ有効化の確認
 
-guide・運用文書のみ更新。測定ロジック、UI、他Workerは変更していない。ローカルのアプリ528件、strict、モックURL build、本番URL buildがPASS。ブラウザ11件中10件がPASSし、ブラウザ起動待ちで中断した1件は個別再実行でPASS。Workerはstrict/dry-runと31件PASS、実runtimeの3件は前述のWindows制限で起動不可。GitHub Actionsで全件再確認し、Pages公開・公開アプリとD1の増分照合を追記する。物理端末によるセンサー操作と本番の通信確認は区別する。
+guide・運用文書のみ更新。測定ロジック、UI、他Workerは変更していない。ローカルのアプリ528件、strict、モックURL build、本番URL buildがPASS。ブラウザ11件中10件がPASSし、ブラウザ起動待ちで中断した1件は個別再実行でPASS。Workerはstrict/dry-runと31件PASS、実runtimeの3件は前述のWindows制限で起動不可。
+
+有効化commit：`ef4eda845c7a4b6eb4063617441dc9835a309a67`。[GitHub Actions 37866802310](https://github.com/efactory-suzuka/efactory-steering-angle-meter/actions/runs/37866802310) でアプリ528件、Worker34件、ブラウザ11件の全検証、strictを含む本番build、Pages deployが成功。公開guideで米国所在と有効化後の説明を確認し、旧未送信の説明がないことを確認した。
+
+### 公開アプリからの実通信確認
+
+2026-10-09 09:52:34～09:52:50 JST。新しい隔離Chromeから実際の公開アプリを開き、実Workerへ通信した。センサーと権限の入力だけはテスト用に模擬した。実車やiPhone/Androidの物理センサー検証ではない。
+
+| 操作 | 実POST／増分 |
+| --- | --- |
+| 通常documentの表示 | open +1 |
+| 再描画・センサーフレーム | 増分なし |
+| 中央記録の開始 | start +1 |
+| 左右Confirmed MAX成立、右MAXの追加更新 | 増分なし |
+| 左右確定後にユーザー終了操作 | success +1 |
+| もう一度測る→中央記録→右側のみ確定→終了 | start +1、success増分なし |
+| リロード | open +1 |
+| guide、debug=1 | 増分なし |
+
+5件のPOSTは本文がイベント文字列のみ、全204、Cookie・Referer送信なし、Set-Cookieなし。ブラウザのCookie・localStorage・sessionStorage追加なし。ページ例外なし。失敗・遅延時の継続と再送なしはモックのブラウザテストで確認しており、本番基盤の障害を意図的に起こしていない。
+
+管理画面のD1 Consoleで直前 `open=1,start=1,success=1`、直後 **`open=3,start=3,success=2`** を再取得して一致を確認した。今回のブラウザ検証による追加は `open +2,start +2,success +1`。先の直接HTTP検証を含めた本番テスト合計は **`open +3,start +3,success +2`**。テスト分は削除せず2026-10-09の日別合計に含まれる。個別履歴・テスト識別子は追加していない。
+
+後続のCLIによるD1読取は7403（アカウント／権限）で拒否されたため、既存の認証済みDashboardで同じ読取を実施した。Workerの受信・D1書込は正常。トークンの新規発行や権限拡大は行っていない。今後CLIを再利用する場合は公式Wrangler認証を再確認する。
+
+残る事項は、実機Safari/PWAからの実センサー操作を伴う確認、2026年12月の認証再確認と以後の継続運用。国内向け以外の法令・Cloudflare内部処理の独立監査は今回実施していない。
